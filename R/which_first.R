@@ -78,169 +78,261 @@ which_first <- function(expr, verbose = FALSE) {
                   c("==", "<=", ">=", ">", "<", "!=", "%in%"))) ||
       !is.name(lhs <- sexpr[[2L]]) ||
       # For now, restrict to RHS
-      NOR(is.numeric(rhs <- sexpr[[3L]]),        # bare doubles and integers
+      # lower case or so that rhs_eval occurs
+      NOR(OR(is.numeric(rhs <- sexpr[[3L]]),        # bare doubles and integers
+             is.logical(eval.parent(rhs))),
           OR(AND(is.call(rhs) && as.character(rhs[[1L]]) == "-", # negatives
                  is.numeric(rhs[[2L]])),
              AND(operator == "%in%",             # numeric vectors with %in%
                  # c(0, 1, 2) is not numeric but it is when evaluated
                  is.numeric(eval.parent(rhs)))))) {
-    if (verbose) {
-      message("Falling back to `which.max(expr)`.")
-    }
-    o <- which.max(expr)
+    o <- .which_first(expr, verbose = verbose)
+    return(o)
+  }
+  lhs_eval <- eval.parent(lhs)
 
-    # o == 1L is wrong if all expr are FALSE
-    if (o == 1L && !expr[1L]) {
-      o <- 0L
+  if (length(lhs_eval) == 0L) {
+    return(0L)
+  }
+  rhs_eval <- eval.parent(rhs)
+
+  if (is.logical(lhs_eval)) {
+    if (anyNA(rhs_eval)) {
+      switch(operator,
+             "==" = {
+               warning("`rhs` appears to be logical NA. Treating as\n\twhich_first(is.na(.))")
+               o <- .which_first(is.na(lhs_eval))
+             },
+             "!=" = {
+               warning("`rhs` appears to be logical NA. Treating as\n\twhich_first(!is.na(.))")
+               o <- .which_first(!is.na(lhs_eval))
+             },
+             stop("`rhs` appears to be logical NA. This is not supported for operator '", operator, "'."))
+    } else {
+      o <- .which_first_logical(lhs_eval, as.logical(rhs_eval), operator = operator)
     }
     return(o)
   }
-
-  lhs_eval <- eval.parent(lhs)
-  rhs_eval <- eval.parent(rhs)
-
 
   if (is.character(lhs_eval)) {
     oc <-
       switch(operator,
              "==" = AnyCharMatch(lhs_eval, as.character(rhs_eval)),
              {
-               o <- which.max(expr)
-               if (o == 1L && !expr[1L]) {
-                 o <- 0L
-               }
-               o
+               o <- .which_first(expr, verbose = verbose)
              })
+    if (oc <= .Machine$integer.max) {
+      oc <- as.integer(oc)
+    }
     return(oc)
   }
 
-  switch(operator,
-         "==" = {
-           if (is.double(lhs_eval)) {
-             o <- AnyWhich_dbl(lhs_eval, as.double(rhs_eval), gt = FALSE, lt = FALSE, eq = TRUE)
-           }
-           if (is.integer(lhs_eval)) {
-             # Need to pass int to Rcpp, but 2 != 2.5
-             if (is.double(rhs_eval) && as.integer(rhs_eval) != rhs_eval) {
-               # if rhs isn't even an integer, then
-               # the first element of any integer vector
-               # will not be equal to it.
-               return(0L)
-             }
-             o <- AnyWhich_int(lhs_eval, as.integer(rhs_eval), gt = FALSE, lt = FALSE, eq = TRUE)
-           }
-         },
-         "!=" = {
-           if (is.double(lhs_eval)) {
-             o <- AnyWhich_dbl(lhs_eval, as.double(rhs_eval), gt = FALSE, lt = FALSE, eq = FALSE)
-           }
-           if (is.integer(lhs_eval)) {
-             if (is.double(rhs_eval) && as.integer(rhs_eval) != rhs_eval) {
-               # Like ==, if rhs isn't even an integer, then
-               # the first element of any integer vector
-               # will not be equal to it. But if lhs_eval
-               # has no length, we should return 0L
-               if (!length(lhs_eval)) {
-                 return(0L)
-               } else {
-                 return(1L)
-               }
-             }
-             o <- AnyWhich_int(lhs_eval, as.integer(rhs_eval), gt = FALSE, lt = FALSE, eq = FALSE)
-           }
-         },
-         "<=" = {
-           if (is.double(lhs_eval)) {
-             o <- AnyWhich_dbl(lhs_eval, as.double(rhs_eval), gt = FALSE, lt = TRUE, eq = TRUE)
-           }
-           if (is.integer(lhs_eval)) {
-             if (!is.integer(rhs_eval)) {
-               if (as.integer(rhs_eval) != rhs_eval && rhs_eval < 0) {
-                 # as.integer truncates *towards* zero so -2.5 => 2
-                 # -3 <= -2.5 == 2
-                 # yet 2.5 <= 2
-                 rhs_eval <- as.integer(rhs_eval) - 1L
-               } else {
-                 rhs_eval <- as.integer(rhs_eval)
-               }
-             }
-             o <- AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = TRUE)
-           }
-         },
-         "<" = {
-           if (is.double(lhs_eval)) {
-             o <- AnyWhich_dbl(lhs_eval, as.double(rhs_eval), gt = FALSE, lt = TRUE, eq = FALSE)
-           }
-           if (is.integer(lhs_eval)) {
-             if (!is.integer(rhs_eval)) {
-               if (as.integer(rhs_eval) != rhs_eval && rhs_eval > 0) {
-                 #  2.5 =>  2L
-                 # -2.5 => -2L
-                 rhs_eval <- as.integer(rhs_eval) + 1L
-               } else {
-                 rhs_eval <- as.integer(rhs_eval)
-               }
-             }
-             o <- AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = FALSE)
-           }
-         },
-         ">=" = {
-           if (is.double(lhs_eval)) {
-             o <- AnyWhich_dbl(lhs_eval, as.double(rhs_eval), gt = TRUE, lt = FALSE, eq = TRUE)
-           }
-           if (is.integer(lhs_eval)) {
-             if (!is.integer(rhs_eval)) {
-               if (as.integer(rhs_eval) != rhs_eval && rhs_eval > 0) {
-                 #  2.5 =>  2L
-                 # -2.5 => -2L
-                 rhs_eval <- as.integer(rhs_eval) + 1L
-               } else {
-                 rhs_eval <- as.integer(rhs_eval)
-               }
-             }
-             o <- AnyWhich_int(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = TRUE)
-           }
-         },
-         ">" = {
-           if (is.double(lhs_eval)) {
-             o <- AnyWhich_dbl(lhs_eval, as.double(rhs_eval), gt = TRUE, lt = FALSE, eq = FALSE)
-           }
-           if (is.integer(lhs_eval)) {
-             if (!is.integer(rhs_eval)) {
-               if (as.integer(rhs_eval) != rhs_eval && rhs_eval < 0) {
-                 #  2.5 =>  2L
-                 # -2.5 => -2L
-                 rhs_eval <- as.integer(rhs_eval) - 1L
-               } else {
-                 rhs_eval <- as.integer(rhs_eval)
-               }
-             }
-             o <- AnyWhich_int(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = FALSE)
-           }
-         },
-         "%in%" = {
-           o <-
-             if (is.integer(lhs_eval)) {
-               AnyWhichInInt(lhs_eval, as.integer(rhs_eval))
-             } else {
-               AnyWhichInDbl(lhs_eval, as.double(rhs_eval))
-             }
-         },
+  # The return statement
+  o <-
+    switch(operator,
+           "==" = {
+             switch(typeof(lhs_eval),
+                    "double" = {
+                      rhs_eval <- as.double(rhs_eval)
+                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = TRUE)
+                    },
+                    "integer" = {
+                      # Need to pass int to Rcpp, but 2 != 2.5
+                      if (is.double(rhs_eval) && as.integer(rhs_eval) != rhs_eval) {
+                        # if rhs isn't even an integer, then
+                        # the first element of any integer vector
+                        # will not be equal to it.
+                        return(0L)
+                      }
+                      rhs_eval <- as.integer(rhs_eval)
+                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = TRUE)
+                    },
+                    # else
+                    .which_first(expr, verbose = verbose))
+           },
+           "!=" = {
+             switch(typeof(lhs_eval),
+                    "double" = {
+                      rhs_eval <- as.double(rhs_eval)
+                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = FALSE)
+                    },
+                    "integer" = {
+                      if (is.double(rhs_eval) && as.integer(rhs_eval) != rhs_eval) {
+                        # Like ==, if rhs isn't even an integer, then
+                        # the first element of any integer vector
+                        # will not be equal to it. If lhs_eval
+                        # has no length, we should have already returned 0L
+                        return(1L)
+                      }
+                      rhs_eval <- as.integer(rhs_eval)
+                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = FALSE)
+                    },
+                    # else
+                    .which_first(expr))
+           },
+           "<=" = {
+             switch(typeof(lhs_eval),
+                    "double" = {
+                      rhs_eval <- as.double(rhs_eval)
+                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = TRUE)
+                    },
+                    "integer" = {
+                      if (!is.integer(rhs_eval)) {
+                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval < 0) {
+                          # as.integer truncates *towards* zero so -2.5 => 2
+                          # -3 <= -2.5 == 2
+                          # yet 2.5 <= 2
+                          rhs_eval <- as.integer(rhs_eval) - 1L
+                        } else {
+                          rhs_eval <- as.integer(rhs_eval)
+                        }
+                      }
+                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = TRUE)
+                    },
+                    # else
+                    .which_first(expr))
+           },
+           "<" = {
+             switch(typeof(lhs_eval),
+                    "double" = {
+                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = FALSE)
+                    },
+                    "integer" = {
+                      if (!is.integer(rhs_eval)) {
+                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval > 0) {
+                          #  2.5 =>  2L
+                          # -2.5 => -2L
+                          rhs_eval <- as.integer(rhs_eval) + 1L
+                        } else {
+                          rhs_eval <- as.integer(rhs_eval)
+                        }
+                      }
+                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = FALSE)
+                    },
+                    # else
+                    .which_first(expr))
+           },
+           ">=" = {
+             switch(typeof(lhs_eval),
+                    "double" =  {
+                      rhs_eval <- as.double(rhs_eval)
+                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = TRUE)
+                    },
+                    "integer" = {
+                      if (!is.integer(rhs_eval)) {
+                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval > 0) {
+                          #  2.5 =>  2L
+                          # -2.5 => -2L
+                          rhs_eval <- as.integer(rhs_eval) + 1L
+                        } else {
+                          rhs_eval <- as.integer(rhs_eval)
+                        }
+                      }
+                      AnyWhich_int(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = TRUE)
+                    },
+                    .which_first(expr))
+           },
+           ">" = {
+             switch(typeof(lhs_eval),
+                    "double" = {
+                      rhs_eval <- as.double(rhs_eval)
+                      o <- AnyWhich_dbl(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = FALSE)
+                    },
+                    "integer" = {
+                      if (!is.integer(rhs_eval)) {
+                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval < 0) {
+                          #  2.5 =>  2L
+                          # -2.5 => -2L
+                          rhs_eval <- as.integer(rhs_eval) - 1L
+                        } else {
+                          rhs_eval <- as.integer(rhs_eval)
+                        }
+                      }
+                      AnyWhich_int(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = FALSE)
+                    },
+                    .which_first(expr))
+           },
+           "%in%" = {
+             switch(typeof(lhs_eval),
+                    "integer" = {
+                      AnyWhichInInt(lhs_eval, as.integer(rhs_eval))
+                    },
+                    "double" = {
+                      AnyWhichInDbl(lhs_eval, as.double(rhs_eval))
+                    },
+                    stop("typeof(lhs) = ", typeof(lhs_eval), " not supported."))
+           },
 
-         # nocov start
-         # Still proceed using base R
-         {
-           warning("Internal error: which_first:95")
-           o <- which.max(expr)
+           # nocov start
+           # Still proceed using base R
+           {
+             warning("Internal error: which_first:95")
+             o <- which.max(expr)
 
-           if (o == 1L && !expr[1L]) {
-             o <- 0L
+             if (o == 1L && !expr[1L]) {
+               o <- 0L
+             }
            }
-         }
-         # nocov end
-         )
-  return(o)
+           # nocov end
+    )
+  # any which's return R_xlen_t
+  if (o <= .Machine$integer.max) {
+    o <- as.integer(o)
+  }
+  o
 }
+
+.which_first <- function(expr, verbose = FALSE) {
+  if (verbose) {
+    message("Falling back to `which.max(expr)`.")
+  }
+  o <- which.max(expr)
+  if (length(o) == 0L) {
+    # i.e. all expr NA
+    return(0L)
+  }
+  # o == 1L is wrong if all expr are FALSE
+  if (o == 1L && !expr[1L]) {
+    o <- 0L
+  }
+  o
+}
+
+.which_first_logical <- function(lhs, rhs, operator = "==", verbose = FALSE) {
+  stopifnot(length(lhs) >= 1L,
+            is.logical(rhs), length(rhs) == 1L, !anyNA(rhs),
+            is.logical(verbose))
+  rhs <-
+    switch(operator,
+           "==" = rhs,
+           "!=" = !rhs,
+           "<"  = if (rhs) rhs else return(0L),
+           "<=" = if (rhs) return(1L) else rhs,
+           ">"  = if (rhs) return(0L) else rhs,
+           ">=" = if (rhs) rhs else return(1L),
+           stop("Internal error 260:20190505."))
+  if (rhs) {
+    o <- which.max(lhs)
+    if (length(o) == 0L) {
+      # LHS must be all NA
+      return(0L)
+    }
+    # can't just test o == 1 because it may be NA
+    if (!lhs[o]) {
+      o <- 0L
+    }
+  } else {
+    o <- which.min(lhs)
+    if (length(o) == 0L) {
+      return(0L)
+    }
+    if (lhs[o]) {
+      o <- 0L
+    }
+  }
+  o
+}
+
 
 
 

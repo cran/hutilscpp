@@ -10,24 +10,24 @@ using namespace Rcpp;
 //' @param gt,lt,eq Booleans, whether or not the comparison is greater than, less than, or equal to.
 //' Only \code{gt} and \code{lt} are mutually exclusive. If all \code{FALSE}, find the first instance
 //' where none are equal (i.e. does \code{x} have more than one distinct value).
-//'
+//' @noRd
 
 // [[Rcpp::export]]
-int AnyWhich_dbl(NumericVector x, double a, bool gt, bool lt, bool eq) {
-  int N = x.size();
+R_xlen_t AnyWhich_dbl(NumericVector x, double a, bool gt, bool lt, bool eq) {
+  R_xlen_t N = x.size();
 
   if (gt) {
     if (lt) {
       stop("gt and lt were both TRUE.");
     }
     if (eq) {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] >= a) {
           return ++i; // 0 vs 1 indexing
         }
       }
     } else {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] > a) {
           return ++i;
         }
@@ -35,13 +35,13 @@ int AnyWhich_dbl(NumericVector x, double a, bool gt, bool lt, bool eq) {
     }
   } else if (lt) {
     if (eq) {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] <= a) {
           return ++i;
         }
       }
     } else {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] < a) {
           return ++i;
         }
@@ -50,14 +50,14 @@ int AnyWhich_dbl(NumericVector x, double a, bool gt, bool lt, bool eq) {
   } else {
     if (eq) {
       // Just equality
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] == a) {
           return ++i;
         }
       }
     } else {
       // Just inequality
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] != a) {
           return ++i;
         }
@@ -69,21 +69,21 @@ int AnyWhich_dbl(NumericVector x, double a, bool gt, bool lt, bool eq) {
 }
 
 // [[Rcpp::export]]
-int AnyWhich_int(IntegerVector x, int a, bool gt, bool lt, bool eq) {
-  int N = x.size();
+R_xlen_t AnyWhich_int(IntegerVector x, int a, bool gt, bool lt, bool eq) {
+  R_xlen_t N = x.size();
 
   if (gt) {
     if (lt) {
       stop("gt and lt were both TRUE.");
     }
     if (eq) {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] >= a) {
           return ++i; // 0 vs 1 indexing
         }
       }
     } else {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] > a) {
           return ++i;
         }
@@ -91,13 +91,13 @@ int AnyWhich_int(IntegerVector x, int a, bool gt, bool lt, bool eq) {
     }
   } else if (lt) {
     if (eq) {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] <= a) {
           return ++i;
         }
       }
     } else {
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] < a) {
           return ++i;
         }
@@ -106,14 +106,14 @@ int AnyWhich_int(IntegerVector x, int a, bool gt, bool lt, bool eq) {
   } else {
     if (eq) {
       // Just equality
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] == a) {
           return ++i;
         }
       }
     } else {
       // Just inequality
-      for (int i = 0; i < N; ++i) {
+      for (R_xlen_t i = 0; i < N; ++i) {
         if (x[i] != a) {
           return ++i;
         }
@@ -126,10 +126,10 @@ int AnyWhich_int(IntegerVector x, int a, bool gt, bool lt, bool eq) {
 
 // [[Rcpp::export]]
 int AnyWhichInDbl (DoubleVector x, DoubleVector Table) {
-  int N = x.size();
+  R_xlen_t N = x.size();
   int M = Table.size();
 
-  for (int i = 0; i < N; ++i) {
+  for (R_xlen_t i = 0; i < N; ++i) {
     for (int j = 0; j < M; ++j) {
       if (x[i] == Table[j]) {
         return ++i;
@@ -141,10 +141,10 @@ int AnyWhichInDbl (DoubleVector x, DoubleVector Table) {
 
 // [[Rcpp::export]]
 int AnyWhichInInt (IntegerVector x, IntegerVector Table) {
-  int N = x.size();
+  R_xlen_t N = x.size();
   int M = Table.size();
 
-  for (int i = 0; i < N; ++i) {
+  for (R_xlen_t i = 0; i < N; ++i) {
     for (int j = 0; j < M; ++j) {
       if (x[i] == Table[j]) {
         return ++i;

@@ -3,8 +3,8 @@ using namespace Rcpp;
 #include "cpphutils.h"
 
 
-IntegerVector do_range_int (IntegerVector x, int halt_if_min, int halt_if_max) {
-  int n = x.size();
+IntegerVector do_range_int(IntegerVector x, int halt_if_min, int halt_if_max) {
+  R_xlen_t n = x.size();
   int maxi = x[n - 1];
   int which_max = n - 1;
   int mini = x[0];
@@ -15,8 +15,11 @@ IntegerVector do_range_int (IntegerVector x, int halt_if_min, int halt_if_max) {
     which_max = 0;
   }
 
-  for (int i = 0; i < n; ++i) {
+  for (R_xlen_t i = 0; i < n; ++i) {
     int xi = x[i];
+    if (xi == NA_INTEGER) {
+      continue;
+    }
     if (xi < mini) {
       mini = xi;
       which_min = i;
@@ -47,8 +50,8 @@ IntegerVector do_range_int (IntegerVector x, int halt_if_min, int halt_if_max) {
 
 
 
-DoubleVector do_range_dbl (DoubleVector x, double halt_if_min, double halt_if_max) {
-  int n = x.size();
+DoubleVector do_range_dbl(DoubleVector x, double halt_if_min, double halt_if_max) {
+  R_xlen_t n = x.size();
   double maxi = x[n - 1];
   double which_max = n - 1;
   double mini = x[0];
@@ -58,8 +61,11 @@ DoubleVector do_range_dbl (DoubleVector x, double halt_if_min, double halt_if_ma
     maxi = x[0];
     which_max = 0;
   }
-  for (int i = 0; i < n; ++i) {
+  for (R_xlen_t i = 0; i < n; ++i) {
     double xi = x[i];
+    if (xi == NA_REAL) {
+      continue;
+    }
     if (xi < mini) {
       mini = xi;
       which_min = i;
