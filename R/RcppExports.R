@@ -85,6 +85,14 @@ do_which_even <- function(x, y) {
     .Call(`_hutilscpp_do_which_even`, x, y)
 }
 
+do_range_dbl_simple <- function(x) {
+    .Call(`_hutilscpp_do_range_dbl_simple`, x)
+}
+
+do_anyNonfinite <- function(x) {
+    .Call(`_hutilscpp_do_anyNonfinite`, x)
+}
+
 do_which_first <- function(x) {
     .Call(`_hutilscpp_do_which_first`, x)
 }
@@ -99,6 +107,14 @@ do_which_first_false <- function(x) {
 
 do_which_first_int_int <- function(x, y, eq = TRUE, gt = FALSE, lt = FALSE) {
     .Call(`_hutilscpp_do_which_first_int_int`, x, y, eq, gt, lt)
+}
+
+do_which_first_lgl_lgl <- function(x, y, eq, lt, gt, skip_na = FALSE) {
+    .Call(`_hutilscpp_do_which_first_lgl_lgl`, x, y, eq, lt, gt, skip_na)
+}
+
+do_xor2 <- function(x, y, anyNAx = TRUE, anyNAy = TRUE) {
+    .Call(`_hutilscpp_do_xor2`, x, y, anyNAx, anyNAy)
 }
 
 showValue <- function(what, x) {
@@ -141,8 +157,8 @@ is_safe2int <- function(x, int_max) {
     .Call(`_hutilscpp_is_safe2int`, x, int_max)
 }
 
-force_as_integer <- function(x) {
-    .Call(`_hutilscpp_force_as_integer`, x)
+force_as_integer <- function(x, na_code) {
+    .Call(`_hutilscpp_force_as_integer`, x, na_code)
 }
 
 is_sorted_ascending_dbl <- function(x) {
