@@ -6,12 +6,15 @@
 #' @return The same as \code{which.max(expr)} or \code{which(expr)[1]} but returns \code{0L}
 #'  when \code{expr} has no \code{TRUE} values.
 #'
+#'
 #' @details
 #' If the \code{expr} is of the form \code{LHS <operator> RHS}
 #' and \code{LHS} is a single symbol, \code{operator} is one of
 #' \code{==},  \code{!=}, \code{>}, \code{>=}, \code{<}, \code{<=},
-#' or \code{\%in\%}.
-#' and \code{RHS} is a single numeric value, then \code{expr} is not
+#' \code{\%in\%},
+#' or
+#'  \code{\%between\%},
+#' and \code{RHS} is numeric, then \code{expr} is not
 #' evaluated directly; instead, each element of \code{LHS} is compared
 #' individually.
 #'
@@ -33,9 +36,34 @@
 #'  Thus \code{which_first} has a smaller worst-case time than the
 #'  alternatives for most \code{x}.
 #'
+#' Missing values on the RHS are handled specially.
+#' \code{which_first(x \%between\% c(NA, 1))} for example is equivalent to
+#' \code{which_first(x <= 1)}, as in \code{\link[data.table:between]{data.table::between}}.
 #'
-#' @param verbose (logical, default: \code{FALSE}) If \code{TRUE} a message is emitted
-#' if \code{expr} could not be handled in the advertised way.
+#'
+#'
+#'
+#'
+#' @param verbose \describe{
+#' \item{\code{logical(1)}, default: \code{FALSE}}{If \code{TRUE} a message is emitted
+#' if \code{expr} could not be handled in the advertised way.}
+#' }
+#'
+#' @param reverse \describe{
+#'   \item{\code{logical(1)}, default: \code{FALSE}}{Scan \code{expr} in reverse.}
+#' }
+#'
+#' @param sexpr Equivalent to \code{substitute(expr)}. For internal use.
+#' @param eval_parent_n Passed to \code{eval.parent}, the environment in which
+#' \code{expr} is evaluated.
+#'
+#' @param suppressWarning Either a \code{FALSE} or \code{TRUE}, whether or not
+#' warnings should be suppressed. Also supports a string input which suppresses a
+#' warning if it matches as a regular expression.
+#'
+#' @param use.which.max If \code{TRUE}, \code{which.max} is dispatched immediately,
+#' even if \code{expr} would be amenable to separation. Useful when evaluating
+#' many small \code{expr}'s when these are known in advance.
 #'
 #'
 #'
@@ -66,40 +94,85 @@
 #' bench_system_time(which.max(x == 5))   # 1.6
 #' bench_system_time(which_first(x == 5)) # 1.3
 #'
-#' @export
+#' @export which_first
 
 
-which_first <- function(expr, verbose = FALSE) {
+which_first <- function(expr,
+                        verbose = FALSE,
+                        reverse = FALSE,
+                        sexpr,
+                        eval_parent_n = 1L,
+                        suppressWarning = getOption("hutilscpp_suppressWarning", FALSE),
+                        use.which.max = FALSE) {
+  if (use.which.max) {
+    return(.which_first(expr, verbose = verbose, reverse = reverse))
+  }
   rhs <- NULL
-  sexpr <- substitute(expr)
+  if (missing(sexpr)) {
+    sexpr <- substitute(expr)
+  }
   if (!is.call(sexpr) ||
       length(sexpr) != 3L ||
-      anyNA(match(operator <- as.character(sexpr[[1L]]),
-                  c("==", "<=", ">=", ">", "<", "!=", "%in%"))) ||
-      !is.name(lhs <- sexpr[[2L]]) ||
-      # For now, restrict to RHS
-      # lower case or so that rhs_eval occurs
-      NOR(OR(is.numeric(rhs <- sexpr[[3L]]),        # bare doubles and integers
-             is.logical(eval.parent(rhs))),
-          OR(AND(is.call(rhs) && as.character(rhs[[1L]]) == "-", # negatives
-                 is.numeric(rhs[[2L]])),
-             AND(operator == "%in%",             # numeric vectors with %in%
-                 # c(0, 1, 2) is not numeric but it is when evaluated
-                 is.numeric(eval.parent(rhs)))))) {
-    o <- .which_first(expr, verbose = verbose)
+      !(op <- do_op2M(operator <- as.character(sexpr[[1L]])))) {
+    o <- .which_first(expr, verbose = verbose, reverse = reverse)
     return(o)
   }
-  lhs_eval <- eval.parent(lhs)
+  lhs <- sexpr[[2L]]
 
-  if (length(lhs_eval) == 0L) {
-    return(0L)
+  if (!is.name(lhs)) {
+    o <- .which_first(expr, verbose = verbose, reverse = reverse)
+    return(o)
   }
-  rhs_eval <- eval.parent(rhs)
 
-  if (operator != "%in%" && length(lhs_eval) != length(rhs_eval) && length(rhs_eval) != 1L) {
-    stop("In `which_first(<lhs> ", operator, " <rhs>)`, the length of <rhs> was neither ",
-         "`length(<lhs>) = ", length(lhs_eval), "` nor 1. Such recycling is not supported")
+  rhs <- sexpr[[3L]]
+
+  isValidExpr <-
+    is.numeric(rhs) ||  # bare doubles and integers
+    AND(is.call(rhs) && is.numeric(rhs[[2L]]),
+        # negatives
+        as.character(rhs[[1L]]) == "-") ||
+    is.logical(rhs_eval <- eval.parent(rhs, n = eval_parent_n)) ||
+
+    # c(0, 1, 2) is not numeric but it is when evaluated
+    AND(op >= 7 && op <= 10,
+        is.numeric(rhs_eval)) ||
+
+    # x != y  or  x == y
+
+    AND(is.symbol(rhs),
+        # Must be both integers or both doubles otherwise will fall through too late.
+        # Too expensive to check or coerce to doubles in case.
+        AND(is.numeric(lhs_eval <- eval.parent(lhs, n = eval_parent_n)),
+            is.numeric(rhs_eval))) ||
+
+    AND(is.character(rhs_eval),
+        # Must be both integers or both doubles otherwise will fall through too late.
+        # Too expensive to check or coerce to doubles in case.
+        all(is.character(lhs_eval <- eval.parent(lhs, n = eval_parent_n)),
+            OR(length(lhs_eval) == length(rhs_eval),
+               length(rhs_eval) == 1L),
+            OR(operator == "!=",
+               operator == "=="),
+            na.rm = TRUE))
+
+
+
+  if (!isValidExpr) {
+    o <- .which_first(expr, verbose = verbose, reverse = reverse)
+    return(o)
   }
+
+  lhs_eval <- eval.parent(lhs, n = eval_parent_n)
+
+  if (length(lhs_eval) <= 1L) {
+    if (isTRUE(expr)) {
+      return(1L)
+    } else {
+      return(0L)
+    }
+  }
+  rhs_eval <- eval.parent(rhs, n = eval_parent_n)
+
 
   if (is.logical(lhs_eval)) {
     if (operator == "%in%") {
@@ -108,35 +181,53 @@ which_first <- function(expr, verbose = FALSE) {
                          if (any(rhs_eval, na.rm = TRUE)) TRUE,
                          if (!all(rhs_eval, na.rm = TRUE)) FALSE)
       if (length(rhs_eval_mini) == 3L) {
-        return(1L) # all must be present
+        return(if (reverse) length(lhs_eval) else 1L) # all must be present
       }
       if (length(rhs_eval_mini) == 1L) {
         if (anyNA(rhs_eval_mini)) {
           if (anyNA(lhs_eval)) {
-            return(which.max(is.na(lhs_eval)))
+            if (reverse) {
+              return(do_which_last(is.na(lhs_eval)))
+            } else {
+              return(which.max(is.na(lhs_eval)))
+            }
           } else {
             return(0L)
           }
         }
-        return(.which_first_logical(lhs_eval, rhs_eval_mini))
+        return(.which_first_logical(lhs_eval, rhs_eval_mini, rev = reverse))
       }
       # must be length 2
       if (!anyNA(rhs_eval_mini)) {
-        o1 <- .which_first_logical(lhs_eval, TRUE)
+        # TRUE or FALSE
+        o1 <- .which_first_logical(lhs_eval, TRUE, rev = reverse)
         if (o1 == 0) {
-          return(.which_first_logical(lhs_eval, FALSE))
+          return(.which_first_logical(lhs_eval, FALSE, rev = reverse))
         }
-        o2 <- .which_first_logical(lhs_eval[seq_len(o1)], FALSE)
+        o2 <- .which_first_logical(lhs_eval[seq_len(o1)], FALSE, rev = reverse)
         if (o2 == 0) {
           return(o1)
         }
-        return(min(o1, o2))
-      } else {
-        if (any(rhs_eval_mini, na.rm = TRUE)) {
-          # TRUE and NA
-          o1 <- .which_first_logical(lhs_eval, TRUE)
+        if (reverse) {
+          return(max(o1, o2))
         } else {
-          o1 <- .which_first_logical(lhs_eval, FALSE)
+          return(min(o1, o2))
+        }
+      } else {
+        # NA and {TRUE or FALSE}
+        if (any(rhs_eval_mini, na.rm = TRUE)) {
+          # NA and TRUE
+          if (reverse) {
+            return(do_which_last_notFALSE(lhs_eval))
+          }
+          o1 <- .which_first_logical(lhs_eval, TRUE, rev = reverse)
+        } else {
+          # NA and FALSE
+          if (reverse) {
+            return(do_which_last_notTRUE(lhs_eval))
+          } else {
+            return(do_which_first_notTRUE(lhs_eval))
+          }
         }
         if (o1 == 0L) {
           if (anyNA(lhs_eval)) {
@@ -145,6 +236,7 @@ which_first <- function(expr, verbose = FALSE) {
             return(0L)
           }
         }
+
         if (anyNA(lhs_eval_1 <- lhs_eval[seq_len(o1)])) {
           return(which.max(is.na(lhs_eval_1)))
         } else {
@@ -154,7 +246,10 @@ which_first <- function(expr, verbose = FALSE) {
       stop("Internal error: which_first_logical:165:20190823. Please report") # nocov
     }
 
-    if (length(rhs_eval) == length(lhs_eval)) {
+    if (length(rhs_eval) == length(lhs_eval) ||
+        operator == "%in%" ||
+        operator == "%between%" ||
+        operator == "%(between)%") {
       if (is.logical(rhs_eval)) {
         # is.logical(rhs_eval)  necessary to ensure integers don't falsely resemble TRUE
         # e.g. which_first(c(TRUE, TRUE) != c(1L, 2L)) should be 2 not 0.
@@ -167,41 +262,54 @@ which_first <- function(expr, verbose = FALSE) {
             return(0L)
           }
         } else {
-          eq <- operator == "==" || operator == "<=" || operator == ">="
-          lt <- operator == "<=" || operator == "<"
-          gt <- operator == ">=" || operator == ">"
-          return(do_which_first_lgl_lgl(lhs_eval, rhs_eval, eq = eq, lt = lt, gt = gt))
+          return(do_which_first_lgl_lgl_op(lhs_eval, rhs_eval, op, reverse = reverse))
         }
       }
-
-
-
-
     }
 
     if (anyNA(rhs_eval)) {
+      warn_msg <- "`rhs` appears to be logical NA. Treating as\n\twhich_first(is.na(.))"
+      if (operator == "!=") {
+        warn_msg <- "`rhs` appears to be logical NA. Treating as\n\twhich_first(!is.na(.))"
+      }
+      suppressThisWarn <-
+        isTRUE(suppressWarning) ||
+        AND(is.character(suppressWarning),
+            any(vapply(suppressWarning, grepl, x = warn_msg, perl = TRUE, FUN.VALUE = FALSE),
+                na.rm = TRUE))
+
       switch(operator,
              "==" = {
-               warning("`rhs` appears to be logical NA. Treating as\n\twhich_first(is.na(.))")
-               o <- .which_first(is.na(lhs_eval))
+               if (!suppressThisWarn) {
+                 warning(warn_msg)
+               }
+               o <- .which_first(is.na(lhs_eval), verbose = verbose, reverse = reverse)
              },
              "!=" = {
-               warning("`rhs` appears to be logical NA. Treating as\n\twhich_first(!is.na(.))")
-               o <- .which_first(!is.na(lhs_eval))
+               if (!suppressThisWarn) {
+                 warning(warn_msg)
+               }
+               o <- .which_first(!is.na(lhs_eval), verbose = verbose, reverse = reverse)
              },
              stop("`rhs` appears to be logical NA. This is not supported for operator '", operator, "'."))
     } else {
-      o <- .which_first_logical(lhs_eval, as.logical(rhs_eval), operator = operator)
+      o <- .which_first_logical(lhs_eval, as.logical(rhs_eval), operator = operator, rev = reverse)
     }
-    return(o)
+    return(R_xlen_t(o))
+  }
+
+  if (is.numeric(lhs_eval) && is.numeric(rhs_eval) &&
+      (length(lhs_eval) == length(rhs_eval) || op)) {
+    return(R_xlen_t(do_which_first_n(lhs_eval, rhs_eval, op, reverse)))
   }
 
   if (is.character(lhs_eval)) {
     oc <-
       switch(operator,
              "==" = AnyCharMatch(lhs_eval, as.character(rhs_eval)),
+             "!=" = AnyCharMatch(lhs_eval, as.character(rhs_eval), opposite = TRUE),
              {
-               o <- .which_first(expr, verbose = verbose)
+               o <- .which_first(expr, verbose = verbose, reverse = reverse)
              })
     if (oc <= .Machine$integer.max) {
       oc <- as.integer(oc)
@@ -209,164 +317,17 @@ which_first <- function(expr, verbose = FALSE) {
     return(oc)
   }
 
-  # The return statement
-  o <-
-    switch(operator,
-           "==" = {
-             switch(typeof(lhs_eval),
-                    "double" = {
-                      rhs_eval <- as.double(rhs_eval)
-                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = TRUE)
-                    },
-                    "integer" = {
-                      # Need to pass int to Rcpp, but 2 != 2.5
-                      if (is.double(rhs_eval) && as.integer(rhs_eval) != rhs_eval) {
-                        # if rhs isn't even an integer, then
-                        # the first element of any integer vector
-                        # will not be equal to it.
-                        return(0L)
-                      }
-                      rhs_eval <- as.integer(rhs_eval)
-                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = TRUE)
-                    },
-                    # else
-                    .which_first(expr, verbose = verbose))
-           },
-           "!=" = {
-             switch(typeof(lhs_eval),
-                    "double" = {
-                      rhs_eval <- as.double(rhs_eval)
-                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = FALSE)
-                    },
-                    "integer" = {
-                      if (is.double(rhs_eval) && as.integer(rhs_eval) != rhs_eval) {
-                        # Like ==, if rhs isn't even an integer, then
-                        # the first element of any integer vector
-                        # will not be equal to it. If lhs_eval
-                        # has no length, we should have already returned 0L
-                        return(1L)
-                      }
-                      rhs_eval <- as.integer(rhs_eval)
-                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = FALSE, eq = FALSE)
-                    },
-                    # else
-                    .which_first(expr))
-           },
-           "<=" = {
-             switch(typeof(lhs_eval),
-                    "double" = {
-                      rhs_eval <- as.double(rhs_eval)
-                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = TRUE)
-                    },
-                    "integer" = {
-                      if (!is.integer(rhs_eval)) {
-                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval < 0) {
-                          # as.integer truncates *towards* zero so -2.5 => 2
-                          # -3 <= -2.5 == 2
-                          # yet 2.5 <= 2
-                          rhs_eval <- as.integer(rhs_eval) - 1L
-                        } else {
-                          rhs_eval <- as.integer(rhs_eval)
-                        }
-                      }
-                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = TRUE)
-                    },
-                    # else
-                    .which_first(expr))
-           },
-           "<" = {
-             switch(typeof(lhs_eval),
-                    "double" = {
-                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = FALSE)
-                    },
-                    "integer" = {
-                      if (!is.integer(rhs_eval)) {
-                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval > 0) {
-                          #  2.5 =>  2L
-                          # -2.5 => -2L
-                          rhs_eval <- as.integer(rhs_eval) + 1L
-                        } else {
-                          rhs_eval <- as.integer(rhs_eval)
-                        }
-                      }
-                      AnyWhich_int(lhs_eval, rhs_eval, gt = FALSE, lt = TRUE, eq = FALSE)
-                    },
-                    # else
-                    .which_first(expr))
-           },
-           ">=" = {
-             switch(typeof(lhs_eval),
-                    "double" =  {
-                      rhs_eval <- as.double(rhs_eval)
-                      AnyWhich_dbl(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = TRUE)
-                    },
-                    "integer" = {
-                      if (!is.integer(rhs_eval)) {
-                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval > 0) {
-                          #  2.5 =>  2L
-                          # -2.5 => -2L
-                          rhs_eval <- as.integer(rhs_eval) + 1L
-                        } else {
-                          rhs_eval <- as.integer(rhs_eval)
-                        }
-                      }
-                      AnyWhich_int(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = TRUE)
-                    },
-                    .which_first(expr))
-           },
-           ">" = {
-             switch(typeof(lhs_eval),
-                    "double" = {
-                      rhs_eval <- as.double(rhs_eval)
-                      o <- AnyWhich_dbl(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = FALSE)
-                    },
-                    "integer" = {
-                      if (!is.integer(rhs_eval)) {
-                        if (as.integer(rhs_eval) != rhs_eval && rhs_eval < 0) {
-                          #  2.5 =>  2L
-                          # -2.5 => -2L
-                          rhs_eval <- as.integer(rhs_eval) - 1L
-                        } else {
-                          rhs_eval <- as.integer(rhs_eval)
-                        }
-                      }
-                      AnyWhich_int(lhs_eval, rhs_eval, gt = TRUE, lt = FALSE, eq = FALSE)
-                    },
-                    .which_first(expr))
-           },
-           "%in%" = {
-             switch(typeof(lhs_eval),
-                    "integer" = {
-                      AnyWhichInInt(lhs_eval, as.integer(rhs_eval))
-                    },
-                    "double" = {
-                      AnyWhichInDbl(lhs_eval, as.double(rhs_eval))
-                    },
-                    stop("typeof(lhs) = ", typeof(lhs_eval), " not supported."))
-           },
+  o <- .which_first(expr, reverse = reverse)
 
-           # nocov start
-           # Still proceed using base R
-           {
-             warning("Internal error: which_first:95")
-             o <- which.max(expr)
-
-             if (o == 1L && !expr[1L]) {
-               o <- 0L
-             }
-           }
-           # nocov end
-    )
-  # any which's return R_xlen_t
-  if (o <= .Machine$integer.max) {
-    o <- as.integer(o)
-  }
-  o
+  R_xlen_t(o)
 }
 
-.which_first <- function(expr, verbose = FALSE) {
+.which_first <- function(expr, verbose = FALSE, reverse = FALSE) {
   if (verbose) {
     message("Falling back to `which.max(expr)`.")
+  }
+  if (reverse) {
+    return(do_which_last(expr))
   }
   o <- which.max(expr)
   if (length(o) == 0L) {
@@ -380,40 +341,134 @@ which_first <- function(expr, verbose = FALSE) {
   o
 }
 
-.which_first_logical <- function(lhs, rhs, operator = "==", verbose = FALSE) {
+.which_first_logical <- function(lhs, rhs, operator = "==", verbose = FALSE, rev = FALSE) {
   stopifnot(length(lhs) >= 1L,
             is.logical(rhs), length(rhs) == 1L, !anyNA(rhs),
             is.logical(verbose))
-  rhs <-
-    switch(operator,
-           "==" = rhs,
-           "!=" = !rhs,
-           "<"  = if (rhs) rhs else return(0L),
-           "<=" = if (rhs) return(1L) else rhs,
-           ">"  = if (rhs) return(0L) else rhs,
-           ">=" = if (rhs) rhs else return(1L),
-           stop("Internal error 260:20190505."))
-  if (rhs) {
-    o <- which.max(lhs)
-    if (length(o) == 0L) {
-      # LHS must be all NA
+
+  #    operator   rhs   first/last
+  # 1:       != FALSE   notFALSE
+  # 2:       !=  TRUE   notTRUE
+  switch({
+    operator
+  },
+  "!=" = {
+    if (rhs) {
+      if (rev) {
+        return(do_which_last_false(lhs))
+      } else {
+        return(do_which_first_false(lhs))
+      }
+    } else {
+      if (rev) {
+        return(do_which_last(lhs))
+      } else {
+        return(do_which_first(lhs))
+      }
+    }
+  },
+  "==" = {
+    # 0:       ==  TRUE   TRUE
+    # 9:       == FALSE   FALSE
+    if (rhs) {
+      if (rev) {
+        return(do_which_last(lhs))
+      } else {
+        return(do_which_first(lhs))
+      }
+    } else {
+      if (rev) {
+        return(do_which_last_false(lhs))
+      } else {
+        return(do_which_first_false(lhs))
+      }
+    }
+  },
+  "<" = {
+    # 5:        < FALSE   0L
+    # 6:        <  TRUE   FALSE
+    if (rhs) {
+      if (rev) {
+        return(do_which_last_false(lhs))
+      } else {
+        return(do_which_first_false(lhs))
+      }
+    } else {
       return(0L)
     }
-    # can't just test o == 1 because it may be NA
-    if (!lhs[o]) {
-      o <- 0L
+  },
+  "<=" = {
+    # 8:       <=  TRUE   1L/length
+    # 7:       <= FALSE   FALSE
+    if (rhs) {
+      if (rev) {
+        return(length(lhs))
+      } else {
+        return(1L)
+      }
+    } else {
+      if (rev) {
+        return(do_which_last_false(lhs))
+      } else {
+        return(do_which_first_false(lhs))
+      }
     }
-  } else {
-    o <- which.min(lhs)
-    if (length(o) == 0L) {
+  },
+  ">" = {
+    # 2:        >  TRUE   0L
+    # 1:        > FALSE   TRUE
+    if (rhs) {
       return(0L)
+    } else {
+      if (rev) {
+        return(do_which_last(lhs))
+      } else {
+        return(do_which_first(lhs))
+      }
     }
-    if (lhs[o]) {
-      o <- 0L
+  },
+  ">=" = {
+    # 4:       >=  TRUE   TRUE
+    # 3:       >= FALSE   TRUE/FALSE
+    if (rhs) {
+      if (rev) {
+        return(do_which_last(lhs))
+      } else {
+        return(do_which_first(lhs))
+      }
+    } else {
+      if (rev) {
+        return(length(lhs))
+      } else {
+        return(1L)
+      }
     }
-  }
-  o
+  })
+  # nocov start
+  print(ls.str())
+  stop("Internal error: 559:2019:11:18. ")
+  # nocov end
 }
+
+
+#' @rdname which_first
+#' @export which_last
+which_last <- function(expr,
+                       verbose = FALSE,
+                       reverse = FALSE,
+                       suppressWarning = getOption("hutilscpp_suppressWarning", FALSE)) {
+  force(reverse)
+  which_first(expr,
+              verbose = verbose,
+              reverse = isFALSE(reverse),
+              sexpr = substitute(expr),
+              eval_parent_n = 2L,
+              suppressWarning = suppressWarning)
+}
+
+
+
+
 
 
 

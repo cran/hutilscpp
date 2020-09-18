@@ -19,7 +19,7 @@ check_TF <- function(x) {
   }
 }
 
-isnt_number <- function(a, na.bad = TRUE, infinite.bad = TRUE) {
+isnt_number <- function(a, na.bad = TRUE, infinite.bad = TRUE, int.only = FALSE) {
   if (!is.numeric(a)) {
     o <- TRUE
     ac <- deparse(substitute(a))
@@ -44,46 +44,34 @@ isnt_number <- function(a, na.bad = TRUE, infinite.bad = TRUE) {
     attr(o, "ErrorMessage") <- paste0("`", ac, "` was not finite, but this is not permitted.")
     return(o)
   }
+  if (int.only && !is.integer(a)) {
+    if (is.nan(a)) {
+      o <- TRUE
+      ac <- deparse(substitute(a))
+      attr(o, "ErrorMessage") <- paste0("`", ac, "` was not safely coercible to integer (NaN).")
+      return(o)
+    }
+    if (is.na(a)) {
+      return(FALSE)
+    }
+    if ((a > 2147483647) || (a < -2147483647)) {
+      o <- TRUE
+      ac <- deparse(substitute(a))
+      attr(o, "ErrorMessage") <- paste0("`", ac, " = ", a, "` was not safely coercible to integer (out of range).")
+      return(o)
+    }
+    if (abs(as.integer(a) - a) > sqrt(.Machine$double.eps)) {
+      o <- TRUE
+      ac <- deparse(substitute(a))
+      attr(o, "ErrorMessage") <- paste0("`", ac, " = ", a, "` was not safely coercible to integer (not a whole number).")
+      return(o)
+    }
+  }
   FALSE
 }
 
 AND <- `&&`
 OR <- `||`
-
-epsilon <- function() {
-  sqrt(.Machine$double.eps)
-}
-
-#' @noRd
-#' @param x A vector, likely to be double.
-#' @param xi integer version of \code{x}. May be cheaper if already known
-#' @param anyNAs Does `x` contain any NA or NaN values?
-which_isnt_integerish <- function(x, xi = as.integer(x), check_finite = TRUE) {
-  if (is.integer(x)) {
-    return(0L)
-  }
-  if (!isFALSE(check_finite) && {nfx <- do_anyNonfinite(x)}) {
-    stop("`x` contained non-finite value ", x[nfx],
-         " at position ", nfx, ". Missing or non-finite doubles",
-         " are not permitted.", )
-  }
-
-  e <- epsilon()
-  # slower to use -e, e when *validating* data,
-  # which should be the benchmark, since it
-  # doesn't matter how fast you are when you
-  # are about to error.
-  d_r <- do_range_dbl(x - xi)
-
-
-  if (d_r[2L] > e) {
-    return(as.integer(d_r[4L]))
-  }
-  if (d_r[1L] < -e) {
-    return(as.integer(d_r[3L]))
-  }
-  0L
-}
 
 isFALSE <- function(x) {
   is.logical(x) && length(x) == 1L && !anyNA(x) && !x
@@ -97,3 +85,33 @@ firstNonNegativeRadix <- function(x, ...) {
     do_firstNonNegativeRadix_int(x, ...)
   }
 }
+
+g <- glue::glue
+
+
+is_wholer <- function(dbl) {
+  length(dbl) == 1L &&
+  !is.na(dbl) &&
+  dbl >= -2147483647 &&
+  dbl <= 2147483647 &&
+  dbl == as.integer(dbl)
+}
+
+# nocov start
+is64bit <- function() .Machine$sizeof.pointer == 8L
+
+is_covr <- function() {
+  requireNamespace("covr", quietly = TRUE) &&
+    requireNamespace("testthat", quietly = TRUE) &&
+    covr::in_covr()
+}
+
+skip_if_covr <- function() {
+  if (requireNamespace("testthat", quietly = TRUE)) {
+    testthat::skip_if(is_covr())
+  }
+}
+
+# nocov end
+
+

@@ -2,15 +2,50 @@
 % Please edit documentation in R/which_first.R
 \name{which_first}
 \alias{which_first}
+\alias{which_last}
 \title{Where does a logical expression first return \code{TRUE}?}
 \usage{
-which_first(expr, verbose = FALSE)
+which_first(
+  expr,
+  verbose = FALSE,
+  reverse = FALSE,
+  sexpr,
+  eval_parent_n = 1L,
+  suppressWarning = getOption("hutilscpp_suppressWarning", FALSE),
+  use.which.max = FALSE
+)
+
+which_last(
+  expr,
+  verbose = FALSE,
+  reverse = FALSE,
+  suppressWarning = getOption("hutilscpp_suppressWarning", FALSE)
+)
 }
 \arguments{
 \item{expr}{An expression, such as \code{x == 2}.}
 
-\item{verbose}{(logical, default: \code{FALSE}) If \code{TRUE} a message is emitted
+\item{verbose}{\describe{
+\item{\code{logical(1)}, default: \code{FALSE}}{If \code{TRUE} a message is emitted
 if \code{expr} could not be handled in the advertised way.}
+}}
+
+\item{reverse}{\describe{
+\item{\code{logical(1)}, default: \code{FALSE}}{Scan \code{expr} in reverse.}
+}}
+
+\item{sexpr}{Equivalent to \code{substitute(expr)}. For internal use.}
+
+\item{eval_parent_n}{Passed to \code{eval.parent}, the environment in which
+\code{expr} is evaluated.}
+
+\item{suppressWarning}{Either a \code{FALSE} or \code{TRUE}, whether or not
+warnings should be suppressed. Also supports a string input which suppresses a
+warning if it matches as a regular expression.}
+
+\item{use.which.max}{If \code{TRUE}, \code{which.max} is dispatched immediately,
+even if \code{expr} would be amenable to separation. Useful when evaluating
+many small \code{expr}'s when these are known in advance.}
 }
 \value{
 The same as \code{which.max(expr)} or \code{which(expr)[1]} but returns \code{0L}
@@ -24,8 +59,10 @@ to simple-to-parse logical expressions.
 If the \code{expr} is of the form \code{LHS <operator> RHS}
 and \code{LHS} is a single symbol, \code{operator} is one of
 \code{==},  \code{!=}, \code{>}, \code{>=}, \code{<}, \code{<=},
-or \code{\%in\%}.
-and \code{RHS} is a single numeric value, then \code{expr} is not
+\code{\%in\%},
+or
+\code{\%between\%},
+and \code{RHS} is numeric, then \code{expr} is not
 evaluated directly; instead, each element of \code{LHS} is compared
 individually.
 
@@ -46,6 +83,10 @@ when the expression is \code{TRUE} for some position. However, \code{which_first
 is faster when all elements of \code{expr} are \code{FALSE}.
 Thus \code{which_first} has a smaller worst-case time than the
 alternatives for most \code{x}.
+
+Missing values on the RHS are handled specially.
+\code{which_first(x \%between\% c(NA, 1))} for example is equivalent to
+\code{which_first(x <= 1)}, as in \code{\link[data.table:between]{data.table::between}}.
 }
 \examples{
 

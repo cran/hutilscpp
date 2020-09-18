@@ -14,16 +14,27 @@
 #' @param x An atomic vector. Only logical, integer, double, and character
 #' vectors are supported. Others may work but have not been tested.
 #'
+#' @param nThread \describe{
+#' \item{\code{integer(1)}}{Number of threads to use in \code{is_constant}.}
+#' }
+#'
 #' @return
 #' Whether or not the vector \code{x} is constant:
 #' \describe{
 #' \item{\code{is_constant}}{\code{TRUE} or \code{FALSE}. Missing values are considered to
-#' be the same.}
+#' be the same as each other, so a vector entirely composed of missing values is
+#' considered constant. Note that \code{is_constant(c(NA_real_, NaN))} is \code{TRUE}.}
 #' \item{\code{isntConstant}}{If constant, \code{0L}; otherwise, the first integer position at
 #' which \code{x} has a different value to the first.
 #'
 #' This has the virtue of \code{!isntConstant(x) == is_constant(x)}.}
 #' }
+#'
+#' Multithreaded \code{is_constant(x, nThread)} should only be used if
+#' \code{x} is expected to be true. It will be faster when
+#' \code{x} is constant but much slower otherwise.
+#'
+#' Empty vectors are constant, as are length-one vectors.
 #'
 #'
 #' @examples
@@ -86,49 +97,15 @@
 #'
 #' @export is_constant isntConstant
 
-is_constant <- function(x) {
+is_constant <- function(x, nThread = getOption("hutilscpp.nThread", 1L)) {
   if (!is.atomic(x)) {
     stop("`x` was not atomic. ",
          "Such objects are not supported.")
   }
-  if (length(x) <= 1L) {
-    return(TRUE)
+  if (is.double(x) && is.na(x[1])) {
+    return(all_na_real(x, nThread = nThread))
   }
-  if (is.logical(x)) {
-    if (anyNA(x)) {
-      if (any(x, na.rm = TRUE)) {
-        return(FALSE)
-      }
-      if (!all(x, na.rm = TRUE)) {
-        return(FALSE)
-      }
-      return(TRUE)
-    }
-    return(XOR(!any(x, na.rm = TRUE), all(x, na.rm = TRUE)))
-  }
-  # Instead of anyNA(x) we only need to check the first element
-  x1 <- x[1L]
-  if (anyNA(x1)) {
-    return(all(is.na(x),
-               # slightly faster
-               na.rm = TRUE))
-  }
-
-  if (is.integer(x)) {
-    !AnyWhich_int(x, x1, FALSE, FALSE, FALSE)
-  } else if (is.double(x)) {
-    !AnyWhich_dbl(x, x1, FALSE, FALSE, FALSE)
-  } else if (is.character(x)) {
-    # Does any character in x not not match the first?
-    # (double negative because the single positive only
-    # checks the second element)
-    !AnyCharMatch(x, x1, opposite = TRUE)
-  } else if (is.factor(x)) {
-    is_constant(as.integer(x))
-  } else {
-    # e.g. raw
-    identical(x, rep_len(x1, length(x)))
-  }
+  do_is_constant(x, nThread = nThread)
 }
 
 #' @rdname is_constant
@@ -166,84 +143,5 @@ isntConstant <- function(x) {
     }
   }
 
-
-
-  if (anyNA(x1) &&
-      # character x is too slow
-      !is.character(x)) {
-    wmin <- which.min(x)
-    if (length(wmin)) {
-      # only need to check first first wmin elements
-      # note that wmin must be > 1 since x1 is NA
-      return(min(wmin, which.max(x[seq_len(wmin)])))
-    } else {
-      return(0L)
-    }
-  }
-
-  switch(typeof(x),
-         "integer" = {
-           AnyWhich_int(x, x1, FALSE, FALSE, FALSE)
-         },
-         "double" = {
-           AnyWhich_dbl(x, x1, FALSE, FALSE, FALSE)
-         },
-         "character" = {
-           AnyCharMatch(x, x1, opposite = TRUE)
-         },
-         {
-           wmin <- which.min(x)
-           if (wmin == 1L) {
-             wmax <- which.max(x)
-             if (wmax == 1L) {
-               return(0L)
-             } else {
-               wmax
-             }
-           } else {
-             wmax <- which.max(x[seq_len(wmin)])
-             pmax.int(min(wmin, wmax), 2L)
-           }
-         })
-
+  do_isntConstant(x)
 }
-#
-#
-# uniqueN3 <- function(x) {
-#   wmin <- which.min(x)
-#   wmax <- which.max(x)
-#   if (anyNA(x)) {
-#     if (wmin) {
-#       if (wmin == wmax) {
-#         2L
-#       } else {
-#         3L
-#       }
-#     } else {
-#       if (wmin == wmax) {
-#         1L
-#       } else {
-#         2L
-#       }
-#     }
-#   } else {
-#     if (wmin) {
-#       if (wmin == wmax) {
-#         1L
-#       } else {
-#         2L
-#       }
-#     } else {
-#       if (wmin == wmax) {
-#         0L
-#       } else {
-#         1L
-#       }
-#     }
-#   }
-# }
-
-
-
-
-

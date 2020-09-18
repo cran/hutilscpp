@@ -1,13 +1,45 @@
+## hutilscpp 0.5.0
+
+### Breaking changes
+* `pminV` no longer accept non-numeric input
+* `do_` functions have been removed entirely
+
+### Bug fixes:
+* `pmax0(x, in_place = TRUE)` now returns early, rather than checking the vector twice.
+* `sum_isna` now reflects `sum(is.na(x))` when x contains `NaN`.
+* `sum_isna` diverts ALTREP vectors to `anyNA` for performance and to avoid problems
+   when passed to C++.
+
+### New functions:
+* `which_last` for the first index from the last index.
+* `divisible` and `divisible16` for returning divisibility
+* `count_logical` fast tabulation of logical vectors
+* `and3s`, `or3s`, parallelized and _separated_ versions of `&`
+* `sum_and3s` and `sum_or3s`, the sums of the above logical vectors. 
+* `whichs` for an alterantive implementation of `which` which separates the input
+* `which_firstNA` and `which_lastNA` for first/last position of missing values
+
+### Enhancements:
+* `which_first` accepts argument `use.which.max` for better performance on known short inputs
+* `is_constant` now accepts `nThread` for multithreaded checking of constant vectors
+  and is much faster in general even in single-thread mode.
+* `sum_isna` now accepts `nThread` for multithreaded accumulation of missing value counts
+* `are_even` can be slightly faster on integers if ignoring `NA`, handles large 
+  doubles (like `1e10`), and accepts `nThread`.
+  
+
+
+
 # hutilscpp 0.3.0
 
-## Critical bug fixes:
+### Critical bug fixes:
 * `is_safe2int(x)` now tolerates `NaN` input. Thanks to CRAN clang-UBSAN.
 
-## Bug fixes:
+### Bug fixes:
 * `which_first(x == y)` now works properly when `length(y) == length(x)`.
 
 
-## New functions:
+### New functions:
 * `xor2` a faster version of `xor`. 
 
 ``` r
@@ -63,15 +95,15 @@ benc__mark(xor(x, y), xor2(x, y))
 
 
 
-# hutilscpp 0.2.0
+## hutilscpp 0.2.0
 
 * Added a `NEWS.md` file to track changes to the package.
 
-## Bug fixes:
+### Bug fixes:
 
 * `which_first(x == y)` now supports logical `x` without returning arcane error messages.
 
-## New functions:
+### New functions:
 
 * `is_constant`, for testing atomic vectors and `isntConstant` for the first
   different value
@@ -79,7 +111,7 @@ benc__mark(xor(x, y), xor2(x, y))
 * `and3`, `or3` for ternary and/or enabling vectorized short-circuiting
 * `sum_isna` for counting `NA` values.
 
-## Enhancements
+### Enhancements
 
 * `pminC` now handles integer inputs without coercing to double.
 * `pmaxC(x, a)` accepts integer `a` when `x` is type double.

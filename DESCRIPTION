@@ -1,6 +1,6 @@
 Package: hutilscpp
 Title: Miscellaneous Functions in C++
-Version: 0.3.0
+Version: 0.5.0
 Authors@R: 
     person(given = "Hugh",
            family = "Parsonage",
@@ -18,12 +18,12 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
-Imports: Rcpp, data.table, hutils, utils
-RoxygenNote: 6.1.1
-Suggests: bench, testthat (>= 2.1.0), TeXCheckR, covr
+Imports: Rcpp, data.table, glue, hutils, magrittr, utils
+RoxygenNote: 7.1.1
+Suggests: bench, parallel, testthat (>= 2.1.0), TeXCheckR, withr, covr
 NeedsCompilation: yes
-Packaged: 2019-10-16 07:01:27 UTC; hughp
+Packaged: 2020-09-18 15:54:07 UTC; hughp
 Author: Hugh Parsonage [aut, cre]
 Maintainer: Hugh Parsonage <hugh.parsonage@gmail.com>
 Repository: CRAN
-Date/Publication: 2019-10-16 11:20:02 UTC
+Date/Publication: 2020-09-18 16:30:02 UTC

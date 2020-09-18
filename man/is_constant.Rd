@@ -5,24 +5,35 @@
 \alias{isntConstant}
 \title{Is a vector constant?}
 \usage{
-is_constant(x)
+is_constant(x, nThread = getOption("hutilscpp.nThread", 1L))
 
 isntConstant(x)
 }
 \arguments{
 \item{x}{An atomic vector. Only logical, integer, double, and character
 vectors are supported. Others may work but have not been tested.}
+
+\item{nThread}{\describe{
+\item{\code{integer(1)}}{Number of threads to use in \code{is_constant}.}
+}}
 }
 \value{
 Whether or not the vector \code{x} is constant:
 \describe{
 \item{\code{is_constant}}{\code{TRUE} or \code{FALSE}. Missing values are considered to
-be the same.}
+be the same as each other, so a vector entirely composed of missing values is
+considered constant. Note that \code{is_constant(c(NA_real_, NaN))} is \code{TRUE}.}
 \item{\code{isntConstant}}{If constant, \code{0L}; otherwise, the first integer position at
 which \code{x} has a different value to the first.
 
 This has the virtue of \code{!isntConstant(x) == is_constant(x)}.}
 }
+
+Multithreaded \code{is_constant(x, nThread)} should only be used if
+\code{x} is expected to be true. It will be faster when
+\code{x} is constant but much slower otherwise.
+
+Empty vectors are constant, as are length-one vectors.
 }
 \description{
 Efficiently decide whether an atomic vector is constant; that is,

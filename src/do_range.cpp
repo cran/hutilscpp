@@ -1,5 +1,3 @@
-#include <Rcpp.h>
-using namespace Rcpp;
 #include "cpphutils.h"
 
 
@@ -145,16 +143,35 @@ DoubleVector do_range_dbl(DoubleVector x, double halt_if_min, double halt_if_max
 
 }
 
-// [[Rcpp::export]]
-R_xlen_t do_anyNonfinite(DoubleVector x) {
-  R_xlen_t n = x.size();
-  for (R_xlen_t i = 0; i < n; ++i) {
-    if (!R_finite(x[i])) {
-      return i + 1;
+/*
+/// [[Rcpp::export(rng = false)]]
+IntegerVector do_prange2_int(IntegerVector x, int nThread = 1) {
+  R_xlen_t N = x.length();
+  IntegerVector out(2);
+  if (N <= 1) {
+    out[0] = (N == 0) ? INT_MAX : x[0];
+    out[1] = (N == 0) ? INT_MIN : x[0];
+    return out;
+  }
+  int xmax = x[0];
+  int xmin = x[0];
+#pragma omp parallel for num_threads(nThread) reduction(min : xmin) reduction(max : xmax)
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (xmin == 1 && xmax == 1000000000) {
+      continue;
+    }
+    int xi = x[i];
+    if (xi <= xmin) {
+      xmin = xi;
+    } else if (xi >= xmax) {
+      xmax = xi;
     }
   }
-  return 0;
+  out[0] = xmin;
+  out[1] = xmax;
+  return out;
 }
 
 
+*/
 

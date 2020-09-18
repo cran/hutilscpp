@@ -36,15 +36,36 @@ test_that("long vectors", {
   skip_on_appveyor()
   skip_on_travis()
   expect_error(which_are_even(integer(1e10)),
-               regexp = "long")
+               # long for 64 bit, large for 32bit
+               regexp = "long|large")
 })
 
 test_that("non-finite values", {
-  expect_error(are_even(c(NA, 1)))
-  expect_error(are_even(c(NaN, 1)))
-  expect_error(are_even(c(Inf, 1)))
-  expect_error(are_even(c(-Inf, 1)))
+  expect_warning(are_even(c(NA, 1)))
+  expect_warning(are_even(c(NaN, 1)))
+  expect_warning(are_even(c(Inf, 1)))
+  expect_warning(are_even(c(-Inf, 1)))
 
+  expect_warning(which_are_even(c(NA, 1)))
+  expect_warning(which_are_even(c(NaN, 1)))
+  expect_warning(which_are_even(c(Inf, 1)))
+  expect_warning(which_are_even(c(-Inf, 1)))
 
+  expect_warning(wh <- which_are_even(c(NA, 1, 2, Inf, -Inf, 7, 8, 8)))
+  expect_equal(wh, which((c(NA, 1, 2, Inf, -Inf, 7, 8, 8) %% 2) == 0))
 })
 
+test_that("NA", {
+  expect_equal(do_are_even(c(NA, 1L, 2L), double(0), 0L), c(NA, FALSE, TRUE))
+  expect_equal(do_are_even(integer(0), c(NA, 1, 2), 0L), c(NA, FALSE, TRUE))
+})
+
+test_that("large", {
+  expect_true(all(are_even(c(0L, 10L, 1e10))))
+})
+
+test_that("keep_nas", {
+  expect_true(all(are_even(c(0L, 10L), nThread = 1L, keep_nas = FALSE)))
+  skip_on_cran()
+  expect_false(any(are_even(c(11L, 13L), nThread = 2L, keep_nas = FALSE)))
+})

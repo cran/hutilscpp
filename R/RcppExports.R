@@ -5,36 +5,28 @@ AnyCharMatch <- function(x, a, opposite = FALSE) {
     .Call(`_hutilscpp_AnyCharMatch`, x, a, opposite)
 }
 
-#' @title Quickly verify (and locate) the existence of a breach.
-#' @name AnyWhich
-#' @description Used when a single instance is likely to occur and be important to detect quickly
-#' (in a sufficiently large integer vector).
-#' @param x An integer vector.
-#' @param a A (single) integer. That which is to be compared.
-#' @param gt,lt,eq Booleans, whether or not the comparison is greater than, less than, or equal to.
-#' Only \code{gt} and \code{lt} are mutually exclusive. If all \code{FALSE}, find the first instance
-#' where none are equal (i.e. does \code{x} have more than one distinct value).
-#' @noRd
-NULL
-
-AnyWhich_dbl <- function(x, a, gt, lt, eq) {
-    .Call(`_hutilscpp_AnyWhich_dbl`, x, a, gt, lt, eq)
-}
-
-AnyWhich_int <- function(x, a, gt, lt, eq) {
-    .Call(`_hutilscpp_AnyWhich_int`, x, a, gt, lt, eq)
-}
-
-AnyWhichInDbl <- function(x, Table) {
-    .Call(`_hutilscpp_AnyWhichInDbl`, x, Table)
-}
-
-AnyWhichInInt <- function(x, Table) {
-    .Call(`_hutilscpp_AnyWhichInInt`, x, Table)
-}
-
 Implies <- function(x, y, anyNAx = TRUE, anyNAy = TRUE) {
     .Call(`_hutilscpp_Implies`, x, y, anyNAx, anyNAy)
+}
+
+is_altrep <- function(x) {
+    .Call(`_hutilscpp_is_altrep`, x)
+}
+
+allocate0_int <- function(N, nThread = 1L) {
+    .Call(`_hutilscpp_allocate0_int`, N, nThread)
+}
+
+allocate0_dbl <- function(N, nThread = 1L) {
+    .Call(`_hutilscpp_allocate0_dbl`, N, nThread)
+}
+
+allocate0_except <- function(N, India, Victor, nThread = 1L) {
+    .Call(`_hutilscpp_allocate0_except`, N, India, Victor, nThread)
+}
+
+allocate_with_root <- function(N, a, r, left, do_pmin, nThread = 1L) {
+    .Call(`_hutilscpp_allocate_with_root`, N, a, r, left, do_pmin, nThread)
 }
 
 anyOutside_int <- function(x, a, b, nas_present = FALSE, na_is_outside = TRUE) {
@@ -51,6 +43,14 @@ do_range_dbl <- function(x, halt_if_min = 1, halt_if_max = -1) {
 
 do_range_int <- function(x, halt_if_min = 1L, halt_if_max = -1L) {
     .Call(`_hutilscpp_do_range_int`, x, halt_if_min, halt_if_max)
+}
+
+do_and3_par <- function(x, ox, x1, x2, y, oy, y1, y2, z, oz, z1, z2, A, B, C, nom, nThread = 1L) {
+    .Call(`_hutilscpp_do_and3_par`, x, ox, x1, x2, y, oy, y1, y2, z, oz, z1, z2, A, B, C, nom, nThread)
+}
+
+do_sum3s_par <- function(x, ox, x1, x2, xd, xd1, xd2, y, oy, y1, y2, yd, yd1, yd2, z, oz, z1, z2, zd, zd1, zd2, A, B, C, ampersand = TRUE, nThread = 1L) {
+    .Call(`_hutilscpp_do_sum3s_par`, x, ox, x1, x2, xd, xd1, xd2, y, oy, y1, y2, yd, yd1, yd2, z, oz, z1, z2, zd, zd1, zd2, A, B, C, ampersand, nThread)
 }
 
 do_cumsum_reset_logical <- function(x) {
@@ -77,20 +77,76 @@ do_cumsum_reset_sorted_int <- function(x) {
     .Call(`_hutilscpp_do_cumsum_reset_sorted_int`, x)
 }
 
-do_are_even <- function(x, y) {
-    .Call(`_hutilscpp_do_are_even`, x, y)
+do_divisible <- function(x, d, nThread = 1L) {
+    .Call(`_hutilscpp_do_divisible`, x, d, nThread)
 }
 
-do_which_even <- function(x, y) {
-    .Call(`_hutilscpp_do_which_even`, x, y)
+do_divisible2 <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_divisible2`, x, nThread)
+}
+
+do_divisible16 <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_divisible16`, x, nThread)
+}
+
+do_are_even <- function(x, y, wb = 0L, nThread = 1L) {
+    .Call(`_hutilscpp_do_are_even`, x, y, wb, nThread)
+}
+
+do_which_even <- function(x, y, wb = 0L) {
+    .Call(`_hutilscpp_do_which_even`, x, y, wb)
+}
+
+do_and3_na <- function(x, y, z, nThread = 1L, na_value = 0L, maxCall = 3L) {
+    .Call(`_hutilscpp_do_and3_na`, x, y, z, nThread, na_value, maxCall)
+}
+
+do_which2_yr <- function(Year, yr, consider_yr, x, xa, eqx, gtx, ltx, y, ya, eqy, gty, lty) {
+    .Call(`_hutilscpp_do_which2_yr`, Year, yr, consider_yr, x, xa, eqx, gtx, ltx, y, ya, eqy, gty, lty)
+}
+
+do_which_in <- function(x, tbl) {
+    .Call(`_hutilscpp_do_which_in`, x, tbl)
+}
+
+test_intersect3_stdint <- function(M = 0L) {
+    .Call(`_hutilscpp_test_intersect3_stdint`, M)
+}
+
+do_count_logical <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_count_logical`, x, nThread)
+}
+
+do_count_logical_long <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_count_logical_long`, x, nThread)
+}
+
+do_in_int <- function(x, table) {
+    .Call(`_hutilscpp_do_in_int`, x, table)
+}
+
+do_par_in <- function(x, table, nThread = 1L) {
+    .Call(`_hutilscpp_do_par_in`, x, table, nThread)
+}
+
+do_par_in_hash_int <- function(x, table, nThread = 1L) {
+    .Call(`_hutilscpp_do_par_in_hash_int`, x, table, nThread)
+}
+
+do_par_in_hash_dbl <- function(x, table, nThread = 1L) {
+    .Call(`_hutilscpp_do_par_in_hash_dbl`, x, table, nThread)
+}
+
+do_op2M <- function(x) {
+    .Call(`_hutilscpp_do_op2M`, x)
+}
+
+do_or3_par <- function(x, ox, x1, x2, y, oy, y1, y2, z, oz, z1, z2, A, B, C, nom, nThread = 1L) {
+    .Call(`_hutilscpp_do_or3_par`, x, ox, x1, x2, y, oy, y1, y2, z, oz, z1, z2, A, B, C, nom, nThread)
 }
 
 do_range_dbl_simple <- function(x) {
     .Call(`_hutilscpp_do_range_dbl_simple`, x)
-}
-
-do_anyNonfinite <- function(x) {
-    .Call(`_hutilscpp_do_anyNonfinite`, x)
 }
 
 do_which_first <- function(x) {
@@ -105,12 +161,44 @@ do_which_first_false <- function(x) {
     .Call(`_hutilscpp_do_which_first_false`, x)
 }
 
-do_which_first_int_int <- function(x, y, eq = TRUE, gt = FALSE, lt = FALSE) {
-    .Call(`_hutilscpp_do_which_first_int_int`, x, y, eq, gt, lt)
+do_which_last_false <- function(x) {
+    .Call(`_hutilscpp_do_which_last_false`, x)
 }
 
-do_which_first_lgl_lgl <- function(x, y, eq, lt, gt, skip_na = FALSE) {
-    .Call(`_hutilscpp_do_which_first_lgl_lgl`, x, y, eq, lt, gt, skip_na)
+do_which_first_notTRUE <- function(x) {
+    .Call(`_hutilscpp_do_which_first_notTRUE`, x)
+}
+
+do_which_last_notTRUE <- function(x) {
+    .Call(`_hutilscpp_do_which_last_notTRUE`, x)
+}
+
+do_which_last_notFALSE <- function(x) {
+    .Call(`_hutilscpp_do_which_last_notFALSE`, x)
+}
+
+do_which_firstNA <- function(x) {
+    .Call(`_hutilscpp_do_which_firstNA`, x)
+}
+
+do_which_lastNA <- function(x) {
+    .Call(`_hutilscpp_do_which_lastNA`, x)
+}
+
+do_which_first_lgl_lgl_op <- function(x, y, op, reverse = FALSE) {
+    .Call(`_hutilscpp_do_which_first_lgl_lgl_op`, x, y, op, reverse)
+}
+
+do_which_first_n <- function(X, Y, op, last = FALSE) {
+    .Call(`_hutilscpp_do_which_first_n`, X, Y, op, last)
+}
+
+do_which_isnt_integerish <- function(x) {
+    .Call(`_hutilscpp_do_which_isnt_integerish`, x)
+}
+
+do_whichs_16 <- function(op, x, y, nThread = 1L) {
+    .Call(`_hutilscpp_do_whichs_16`, op, x, y, nThread)
 }
 
 do_xor2 <- function(x, y, anyNAx = TRUE, anyNAy = TRUE) {
@@ -153,8 +241,30 @@ match_min_Haversine <- function(lat1, lon1, lat2, lon2, tabl, cartR = -1, dist0_
     .Call(`_hutilscpp_match_min_Haversine`, lat1, lon1, lat2, lon2, tabl, cartR, dist0_km, verify_cartR, do_verify_box, excl_self, ncores)
 }
 
-is_safe2int <- function(x, int_max) {
-    .Call(`_hutilscpp_is_safe2int`, x, int_max)
+all_na_real <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_all_na_real`, x, nThread)
+}
+
+do_isntConstant_dbl <- function(x) {
+    .Call(`_hutilscpp_do_isntConstant_dbl`, x)
+}
+
+do_is_constant <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_is_constant`, x, nThread)
+}
+
+do_isntConstant <- function(x) {
+    .Call(`_hutilscpp_do_isntConstant`, x)
+}
+
+#' @noRd
+#' @param x Candidate vector.
+#' @return
+#'   0 if unsafe to coerce to integer
+#'   1 if   safe to coerce to integer and _zero_ NAs in output
+#'   2 if   safe to coerce to integer but _some_ NAs in output
+is_safe2int <- function(x) {
+    .Call(`_hutilscpp_is_safe2int`, x)
 }
 
 force_as_integer <- function(x, na_code) {
@@ -213,20 +323,8 @@ do_which3_mem <- function(x, y, z, And = TRUE) {
     .Call(`_hutilscpp_do_which3_mem`, x, y, z, And)
 }
 
-do_pmax0_abs_dbl <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmax0_abs_dbl`, x, in_place)
-}
-
-do_pmin0_abs_dbl <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmin0_abs_dbl`, x, in_place)
-}
-
-do_pmax0_abs_int <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmax0_abs_int`, x, in_place)
-}
-
-do_pmin0_abs_int <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmin0_abs_int`, x, in_place)
+diagnose_omp <- function(threads_requested, msg_no_openmp, msg_threads_neg, msg_unknown_issues, msg_too_many_threads) {
+    .Call(`_hutilscpp_diagnose_omp`, threads_requested, msg_no_openmp, msg_threads_neg, msg_unknown_issues, msg_too_many_threads)
 }
 
 do_firstNonNegativeRadix_int <- function(x, mini = 0L, maxi = -1L, desc = FALSE, depth = 0L) {
@@ -237,133 +335,32 @@ do_firstNonNegativeRadix_dbl <- function(x, mini = 0L, maxi = -1L, desc = FALSE,
     .Call(`_hutilscpp_do_firstNonNegativeRadix_dbl`, x, mini, maxi, desc, depth)
 }
 
-do_pmax0_radix_sorted_dbl <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmax0_radix_sorted_dbl`, x, in_place)
+do_pmax0_radix_sorted_dbl <- function(x, in_place = FALSE, nThread = 1L) {
+    .Call(`_hutilscpp_do_pmax0_radix_sorted_dbl`, x, in_place, nThread)
 }
 
-do_pmin0_radix_sorted_dbl <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmin0_radix_sorted_dbl`, x, in_place)
+do_pmin0_radix_sorted_dbl <- function(x, in_place = FALSE, nThread = 1L) {
+    .Call(`_hutilscpp_do_pmin0_radix_sorted_dbl`, x, in_place, nThread)
 }
 
-do_pmin0_radix_sorted_int <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmin0_radix_sorted_int`, x, in_place)
+do_pmax0_radix_sorted_int <- function(x, in_place = FALSE, nThread = 1L) {
+    .Call(`_hutilscpp_do_pmax0_radix_sorted_int`, x, in_place, nThread)
 }
 
-do_pmax0_radix_sorted_int <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmax0_radix_sorted_int`, x, in_place)
+do_pmin0_radix_sorted_int <- function(x, in_place = FALSE, nThread = 1L) {
+    .Call(`_hutilscpp_do_pmin0_radix_sorted_int`, x, in_place, nThread)
 }
 
-#' @name do_pmaxC
-#' @title Internal pmaxC helpers
-#' @description Internal functions used when the overheads of assertions
-#' would be too expensive. The \code{_IP_} flavours modify in place.
-#' @param x A numeric/integer vector.
-#' @param a A single numeric/integer.
-#' @param in_place Modify \code{x} in place?
-#' @export do_pmaxC_dbl do_pmaxC_int do_pmax0 do_pmaxIPint0 do_pmaxIPnum0
-NULL
-
-#' @rdname do_pmaxC
-do_pmaxC_dbl <- function(x, a, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmaxC_dbl`, x, a, in_place)
+do_pmax0_bitwise <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_pmax0_bitwise`, x, nThread)
 }
 
-#' @rdname do_pmaxC
-do_pmaxC_int <- function(x, a, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmaxC_int`, x, a, in_place)
+do_pmin0_bitwise <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_do_pmin0_bitwise`, x, nThread)
 }
 
-#' @rdname do_pmaxC
-do_pmax0 <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmax0`, x, in_place)
-}
-
-do_pmaxIP_int <- function(x, a) {
-    .Call(`_hutilscpp_do_pmaxIP_int`, x, a)
-}
-
-do_pmaxIP_dbl <- function(x, a) {
-    .Call(`_hutilscpp_do_pmaxIP_dbl`, x, a)
-}
-
-#' @rdname do_pmaxC
-do_pmaxIPnum0 <- function(x) {
-    .Call(`_hutilscpp_do_pmaxIPnum0`, x)
-}
-
-#' @rdname do_pmaxC
-do_pmaxIPint0 <- function(x) {
-    .Call(`_hutilscpp_do_pmaxIPint0`, x)
-}
-
-#' @title Parallel maximum in C++
-#' @description A faster \code{pmax()}.
-#'
-#' @name do_pmaxV
-#' @param x A numeric vector.
-#' @param y A numeric vector, the same length as x.
-#' @param in_place (bool, default: \code{false}) Should the function operate on \code{x} in-place?
-#' @return The parallel maximum of the input values.
-#' @export do_pmaxNumNum do_pmaxIntInt
-NULL
-
-#' @rdname do_pmaxV
-do_pmaxNumNum <- function(x, y, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmaxNumNum`, x, y, in_place)
-}
-
-#' @rdname do_pmaxV
-do_pmaxIntInt <- function(x, y, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmaxIntInt`, x, y, in_place)
-}
-
-#' @title Parallel maximum
-#' @description A faster \code{pmin()}.
-#'
-#' @name do_pminC
-#' @param x A numeric vector.
-#' @param a A single numeric value.
-#' @param in_place (bool, default: \code{false}) Should the function operate on \code{x} in-place?
-#' @return The parallel minimum of the input values. The \code{0} versions are shortcuts for \code{a = 0}.
-#' @note This function will always be faster than \code{pmin(x, a)} when \code{a} is a single value, but can be slower than \code{pmin.int(x, a)} when \code{x} is short. Use this function when comparing a numeric vector with a single value.
-#' @export do_pminC
-NULL
-
-do_pminC <- function(x, a, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pminC`, x, a, in_place)
-}
-
-do_pminC_int <- function(x, a, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pminC_int`, x, a, in_place)
-}
-
-do_pmin0_dbl <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmin0_dbl`, x, in_place)
-}
-
-do_pmin0_int <- function(x, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pmin0_int`, x, in_place)
-}
-
-#' @title Parallel maximum
-#' @description A faster \code{pmin()}.
-#'
-#' @name do_pminV
-#' @param x A numeric vector.
-#' @param y A numeric vector, the same length as x.
-#' @param in_place (bool, default: \code{false}) Modify \code{x} in-place?
-#' @return The parallel maximum of the input values.
-#' @export do_pminV_dbl do_pminV_int
-NULL
-
-#' @rdname do_pminV
-do_pminV_dbl <- function(x, y, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pminV_dbl`, x, y, in_place)
-}
-
-#' @rdname do_pminV
-do_pminV_int <- function(x, y, in_place = FALSE) {
-    .Call(`_hutilscpp_do_pminV_int`, x, y, in_place)
+do_pminpmax <- function(X, Y, do_min = FALSE, in_place = FALSE, keep_nas = FALSE, dbl_ok = FALSE, swap_xy = FALSE, nThread = 1L) {
+    .Call(`_hutilscpp_do_pminpmax`, X, Y, do_min, in_place, keep_nas, dbl_ok, swap_xy, nThread)
 }
 
 squishn <- function(x, a, b, in_place = FALSE) {
@@ -374,28 +371,28 @@ squishi <- function(x, a, b, in_place = FALSE) {
     .Call(`_hutilscpp_squishi`, x, a, b, in_place)
 }
 
-sum_isna_int <- function(x) {
-    .Call(`_hutilscpp_sum_isna_int`, x)
+sum_isna_int <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_sum_isna_int`, x, nThread)
 }
 
-sum_isna_dbl <- function(x) {
-    .Call(`_hutilscpp_sum_isna_dbl`, x)
+sum_isna_dbl <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_sum_isna_dbl`, x, nThread)
 }
 
-sum_isna_complx <- function(x) {
-    .Call(`_hutilscpp_sum_isna_complx`, x)
+sum_isna_complx <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_sum_isna_complx`, x, nThread)
 }
 
-sum_isna_char <- function(x) {
-    .Call(`_hutilscpp_sum_isna_char`, x)
+sum_isna_char <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_sum_isna_char`, x, nThread)
 }
 
-sum_isfalse <- function(x) {
-    .Call(`_hutilscpp_sum_isfalse`, x)
+sum_isfalse <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_sum_isfalse`, x, nThread)
 }
 
-sum_isna_logi <- function(x) {
-    .Call(`_hutilscpp_sum_isna_logi`, x)
+sum_isna_logi <- function(x, nThread = 1L) {
+    .Call(`_hutilscpp_sum_isna_logi`, x, nThread)
 }
 
 do_summary3_dbl <- function(x, y, z, in_place = FALSE, do_max = TRUE) {
@@ -404,6 +401,34 @@ do_summary3_dbl <- function(x, y, z, in_place = FALSE, do_max = TRUE) {
 
 do_summary3_int <- function(x, y, z, in_place = FALSE, do_max = TRUE) {
     .Call(`_hutilscpp_do_summary3_int`, x, y, z, in_place, do_max)
+}
+
+#' @name where_square_bracket_opens
+#' @param x Character vector of characters.
+#' @param i position of closing bracket.
+#'
+#' @return
+#' -1 if x[i] does not closing bracket
+#'  0 if bracket never closes
+#'  j the location of the closing brace
+#'
+#' @noRd
+NULL
+
+validate_nchar1 <- function(x, return_size = FALSE) {
+    .Call(`_hutilscpp_validate_nchar1`, x, return_size)
+}
+
+max_charsize <- function(x) {
+    .Call(`_hutilscpp_max_charsize`, x)
+}
+
+is_space <- function(x) {
+    .Call(`_hutilscpp_is_space`, x)
+}
+
+where_square_bracket_opens <- function(x, i = 0L) {
+    .Call(`_hutilscpp_where_square_bracket_opens`, x, i)
 }
 
 extractMandatory <- function(x, command, nCommands) {
