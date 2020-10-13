@@ -1,6 +1,4 @@
 #include "cpphutils.h"
-#include <Rcpp.h>
-using namespace Rcpp;
 
 // returns a list of three elements (intended to be passed to an if statement
 // immediately after so no NA_LOGICALs)
@@ -9,6 +7,15 @@ using namespace Rcpp;
 // messages
 
 // # nocov start
+
+// [[Rcpp::export(rng = false)]]
+bool has_openmp() {
+#ifdef _OPENMP
+  return true;
+#endif
+  return false;
+}
+
 
 // [[Rcpp::export(rng = false)]]
 List diagnose_omp(int threads_requested,
@@ -20,6 +27,7 @@ List diagnose_omp(int threads_requested,
   LogicalVector True(1);
   True[0] = TRUE;
   CharacterVector out(1);
+
 
 #ifndef _OPENMP
   return List::create(False, False, out);

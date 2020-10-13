@@ -9,7 +9,8 @@ test_that("which_first works", {
   expect_identical(which_first(x >= 0), 1L)
   expect_identical(which_first(x <= 0), 0L)
   expect_identical(which_first(x != 0), 1L)
-  expect_identical(which_first(x != 0), 1L)
+  x30 <- rep(3, 4)
+  expect_identical(which_first(x30 != 3.0), 0L)
 
   x <- c(-2, -1.5)
   expect_identical(which_first(x == -1.5), 2L)
@@ -300,6 +301,27 @@ test_that("which_first logical", {
 })
 
 test_that("which_first_logical %in%", {
+
+  abc <- logical(0)
+  lgl0 <- logical(0)
+  ttt <- c(TRUE, TRUE, TRUE)
+  ttf <- c(TRUE, TRUE, FALSE)
+  ttn <- c(TRUE, TRUE, NA)
+  tfn <- c(TRUE, FALSE, NA)
+  fff <- c(FALSE, FALSE, FALSE)
+  nana <- c(NA, NA, NA)
+
+
+
+  expect_equal(which_first(abc %in% lgl0),
+               first_which(abc %in% lgl0))
+  expect_equal(which_first(ttt %in% fff),
+               first_which(ttt %in% fff))
+  expect_equal(which_first(ttt %in% ttt),
+               first_which(ttt %in% ttt))
+  expect_equal(which_first(fff %in% fff),
+               first_which(fff %in% fff))
+
   x <- c(TRUE, FALSE, TRUE, FALSE)
   y <- c(TRUE, FALSE)
   expect_equal(which_first(x %in% y), 1)
@@ -369,6 +391,11 @@ test_that("Error handling", {
   x <- c(TRUE, FALSE)
   y <- c(TRUE, FALSE, TRUE)
   expect_error(which_first(x == y), "length")
+  x <- as.integer(x)
+  y <- as.integer(y)
+  expect_error(which_first(x >= y), "length")
+  expect_error(which_first(x %between% y), "length")
+
 })
 
 
@@ -537,6 +564,7 @@ test_that("first_which", {
 test_that("which_first(<x> <o> <y>) lens equal", {
   x <- c(113L, 102L, 106L, 100L, 114L)
   y <- c(108L, 106L, 114L, 100L, 109L)
+  y100 <- c(rep_len(y, length(-100:0)) + -100:0)
 
   expect_equal(which_first(x != y),
                first_which(x != y))
@@ -552,6 +580,8 @@ test_that("which_first(<x> <o> <y>) lens equal", {
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+  expect_equal(which_first(x %in% y100),
+               first_which(x %in% y100))
   expect_equal(which_first(x %between% y[1:2]),
                first_which(x %between% y[1:2]))
   expect_equal(which_first(x %(between)% y[2:3]),
@@ -576,18 +606,26 @@ test_that("which_first(<x> <o> <y>) lens equal", {
   x <- as.double(x)
   expect_equal(which_first(x != y),
                first_which(x != y))
+  expect_equal(which_first(x != x),
+               first_which(x != x))
   expect_equal(which_first(x == y),
                first_which(x == y))
   expect_equal(which_first(x >= y),
                first_which(x >= y))
+  expect_equal(which_first(x >= x),
+               first_which(x >= x))
   expect_equal(which_first(x <= y),
                first_which(x <= y))
   expect_equal(which_first(x > y),
                first_which(x > y))
+  expect_equal(which_first(x > x),
+               first_which(x > x))
   expect_equal(which_first(x < y),
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+  expect_equal(which_first(x %in% y100),
+               first_which(x %in% y100))
   expect_equal(which_first(x %between% y[1:2]),
                first_which(x %between% y[1:2]))
   expect_equal(which_first(x %(between)% y[2:3]),
@@ -613,6 +651,8 @@ test_that("which_first(<x> <o> <y>) lens equal", {
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+  expect_equal(which_first(x %in% y100),
+               first_which(x %in% y100))
   expect_equal(which_first(x %between% y[1:2]),
                first_which(x %between% y[1:2]))
   expect_equal(which_first(x %(between)% y[2:3]),
@@ -638,6 +678,8 @@ test_that("which_first(<x> <o> <y>) lens equal", {
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+  expect_equal(which_first(x %in% y100),
+               first_which(x %in% y100))
   expect_equal(which_first(x %between% y[1:2]),
                first_which(x %between% y[1:2]))
   expect_equal(which_first(x %(between)% y[2:3]),
@@ -663,6 +705,8 @@ test_that("which_first(<x> <o> <y>) lens equal", {
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+  expect_equal(which_first(x %in% y100),
+               first_which(x %in% y100))
   expect_equal(which_first(x %between% y[1:2]),
                first_which(x %between% y[1:2]))
   expect_equal(which_first(x %(between)% y[2:3]),
@@ -688,6 +732,8 @@ test_that("which_first(<x> <o> <y>) lens equal", {
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+  expect_equal(which_first(x %in% y100),
+               first_which(x %in% y100))
   expect_equal(which_first(x %between% y[1:2]),
                first_which(x %between% y[1:2]))
   expect_equal(which_first(x %(between)% y[2:3]),
@@ -744,6 +790,58 @@ test_that("which_first(<x> <o> <y>) lens equal", {
                first_which(x < y))
   expect_equal(which_first(x %in% y),
                first_which(x %in% y))
+
+  y <- Inf
+  expect_equal(which_first(x != y),
+               first_which(x != y))
+  expect_equal(which_first(x == y),
+               first_which(x == y))
+  expect_equal(which_first(x >= y),
+               first_which(x >= y))
+  expect_equal(which_first(x <= y),
+               first_which(x <= y))
+  expect_equal(which_first(x > y),
+               first_which(x > y))
+  expect_equal(which_first(x < y),
+               first_which(x < y))
+
+  y <- -Inf
+  expect_equal(which_first(x != y),
+               first_which(x != y))
+  expect_equal(which_first(x == y),
+               first_which(x == y))
+  expect_equal(which_first(x >= y),
+               first_which(x >= y))
+  expect_equal(which_first(x <= y),
+               first_which(x <= y))
+  expect_equal(which_first(x > y),
+               first_which(x > y))
+  expect_equal(which_first(x < y),
+               first_which(x < y))
+
+  x <- c(5, -5, 2)
+  y <- c(4, -4, 2)
+  expect_equal(which_first(y != y), 0L)
+  expect_equal(which_first(y >= x),
+               first_which(y >= x))
+  expect_equal(which_first(y > x),
+               first_which(y > x))
+  expect_equal(which_first(x < x),
+               first_which(x < x))
+  expect_equal(which_first(x <= y),
+               first_which(x <= y))
+
+  x <- c(5L, -5L, 2L)
+  y <- c(4L, -4L, 2L)
+  expect_equal(which_first(y != y), 0L)
+  expect_equal(which_first(y >= x),
+               first_which(y >= x))
+  expect_equal(which_first(y > x),
+               first_which(y > x))
+  expect_equal(which_first(x < x),
+               first_which(x < x))
+  expect_equal(which_first(x <= y),
+               first_which(x <= y))
 })
 
 test_that("which_first(lgl lgl)", {
@@ -773,6 +871,9 @@ test_that("which_first(lgl lgl)", {
   expect_equal(which_first(x %between% T2),
                first_which(and(x >= T2[1], x <= T2[2])))
   expect_equal(which_first(x %in% T2), which_first(x))
+  T0 <- logical(0)
+  expect_equal(which_first(x %in% T0),
+               first_which(x %in% T0))
 })
 
 test_that("which_first internals", {
@@ -797,6 +898,8 @@ test_that("which_first internals", {
   expect_equal(do_which_first_lgl_lgl_op(c(FALSE, FALSE), c(TRUE, TRUE), do_op2M("%between%")), 0)
 
 })
+
+
 
 test_that("which_firstNA", {
   expect_equal(which_firstNA(1:10), 0)
@@ -959,5 +1062,217 @@ test_that("(between) and ]between[ with NA", {
   expect_equal(first_which(x %]between[% c(5, NA)),
                which_first(x <= 5))
 })
+
+test_that("lens 0", {
+  xi <- c(1L, 2L)
+  xd <- c(10, 20)
+  x0 <- integer(0)
+  x0d <- double(0)
+
+  yi <- c(1L, 2L)
+  yd <- c(10, 20)
+  y0 <- integer(0)
+  y0d <- double(0)
+
+  expect_equal(which_first(xi == yi), first_which(xi == yi))
+  expect_equal(which_first(xi == yd), first_which(xi == yd))
+  expect_equal(which_first(xi == y0), first_which(xi == y0))
+  expect_equal(which_first(xi == y0d), first_which(xi == y0d))
+
+  expect_equal(which_first(xd == yi),
+               first_which(xd == yi))
+  expect_equal(which_first(xd == yd),
+               first_which(xd == yd))
+  expect_equal(which_first(xd == y0),
+               first_which(xd == y0))
+  expect_equal(which_first(xd == y0d),
+               first_which(xd == y0d))
+
+  expect_equal(which_first(x0 == yi),
+               first_which(x0 == yi))
+  expect_equal(which_first(x0 == yd),
+               first_which(x0 == yd))
+  expect_equal(which_first(x0 == y0),
+               first_which(x0 == y0))
+  expect_equal(which_first(x0 == y0d),
+               first_which(x0 == y0d))
+
+  expect_equal(which_first(x0d == yi),
+               first_which(x0d == yi))
+  expect_equal(which_first(x0d == yd),
+               first_which(x0d == yd))
+  expect_equal(which_first(x0d == y0),
+               first_which(x0d == y0))
+  expect_equal(which_first(x0d == y0d),
+               first_which(x0d == y0d))
+
+
+})
+
+test_that("%in% with integers outside integer range", {
+  s <- c(1L, 0L, -2L, 3L, NA_integer_)
+  t <- c(-1e10, 1e10, 3)
+  expect_equal(which_first(s %in% t), 4L)
+  s <- as.double(s)
+  expect_equal(which_first(s %in% t), 4L)
+})
+
+test_that("which_first bench mark", {
+  skip_on_cran()
+  skip_on_travis()
+  skip_on_appveyor()
+  skip_if_not_installed("bench")
+  skip_on_ci()
+  x <- double(1e8)
+  which_first_time <- bench_system_time(which_first(x > 0))
+  first_which_time <- bench_system_time(first_which(x > 0))
+  expect_lt(which_first_time[2], 0.5 * first_which_time[2])
+})
+
+
+test_that("do_which_first_xi_ad", {
+  x <- c(-.Machine$integer.max, -1L, -1L, .Machine$integer.max)
+  w <- c(-3L, 1L, -2L)
+  expect_equal(which_first(x >= Inf),
+               first_which(x >= Inf))
+  expect_equal(which_first(x <= Inf),
+               first_which(x <= Inf))
+  expect_equal(which_first(x >  Inf),
+               first_which(x >  Inf))
+  expect_equal(which_first(x <  Inf),
+               first_which(x <  Inf))
+
+  expect_equal(which_first(x >= -Inf),
+               first_which(x >= -Inf))
+  expect_equal(which_first(x <= -Inf),
+               first_which(x <= -Inf))
+  expect_equal(which_first(x >  -Inf),
+               first_which(x >  -Inf))
+  expect_equal(which_first(x <  -Inf),
+               first_which(x <  -Inf))
+
+  expect_equal(which_first(x > NA_real_),
+               first_which(x > NA_real_))
+
+  expect_equal(which_first(x != -.Machine$integer.max),
+               first_which(x != -.Machine$integer.max))
+  expect_equal(which_first(x == 0),
+               first_which(x == 0))
+  expect_equal(which_first(w > -10),
+               first_which(w > -10))
+  z3 <- integer(3)
+  expect_equal(which_first(z3 != 0),
+               first_which(z3 != 0))
+  expect_equal(which_first(z3 > 0),
+               first_which(z3 > 0))
+})
+
+test_that("do_which_first_xd_yd", {
+  x <- c(0, 2.9, 3.5)
+  y <- x - 1.1
+  expect_equal(which_first(x >= y),
+               first_which(x >= y))
+  expect_equal(which_first(x <= y),
+               first_which(x <= y))
+
+  y <- x + 1
+  expect_equal(which_first(x >= y),
+               first_which(x >= y))
+  expect_equal(which_first(x <= y),
+               first_which(x <= y))
+
+})
+
+test_that("do_which_first_xi_yi", {
+  x <- c(-1L, 2L, -3L)
+  expect_equal(which_first(x >= -4L),
+               first_which(x >= -4L))
+  expect_equal(which_first(x > -4L),
+               first_which(x > -4L))
+  y <- as.integer(x) + 1L
+  expect_equal(which_first(x >= y),
+               which_first(x >= y))
+  expect_equal(which_first(x > y),
+               which_first(x > y))
+
+  y <- as.integer(x) - 1L
+  expect_equal(which_first(x <= y),
+               which_first(x <= y))
+  expect_equal(which_first(x < y),
+               which_first(x < y))
+})
+
+test_that("do_which_first_xi_yd", {
+  x <- rep(1L, 3)
+  z <- as.double(x)
+  expect_equal(which_first(x != z),
+               first_which(x != z))
+  z1.5 <- rep(1.5, 3)
+  expect_equal(which_first(x >= z1.5),
+               first_which(x >= z1.5))
+  expect_equal(which_first(x > z1.5),
+               first_which(x > z1.5))
+  n1.5 <- rep(-1.5, 3)
+  expect_equal(which_first(x <= n1.5),
+               first_which(x <= n1.5))
+  expect_equal(which_first(x < n1.5),
+               first_which(x < n1.5))
+})
+
+test_that("do_which_first_xi_aii", {
+  x <- rep(2L, 3)
+  expect_equal(which_first(x %]between[% c(1L, 3L)),
+               first_which(x %]between[% c(1L, 3L)))
+})
+
+test_that("do_which_first_xi_add", {
+  x <- rep(2L, 3)
+  expect_equal(which_first(x %]between[% c(1, 3)),
+               first_which(x %]between[% c(1, 3)))
+})
+
+test_that("do_which_first_xd_add", {
+  x <- rep(2, 3)
+  expect_equal(which_first(x %]between[% c(1, 3)),
+               first_which(x %]between[% c(1, 3)))
+})
+
+test_that("do_which_first_xi_ai", {
+  x <- rep(7L, 4)
+  expect_equal(which_first(x != 7L),
+               first_which(x != 7L))
+  expect_equal(which_first(x > 7L),
+               first_which(x > 7L))
+  expect_equal(which_first(x <= 6L),
+               first_which(x <= 6L))
+})
+
+test_that("do_which_first_xi_ind", {
+  x <- c(-400L, 4L, 5L, 2L)
+  d0 <- double(0)
+  tl <- seq(-50, 50, by = 0.5)
+  t2 <- c(tl, NA)
+  expect_equal(which_first(x %in% d0),
+               first_which(x %in% d0))
+  expect_equal(which_first(x %in% tl),
+               first_which(x %in% tl))
+  expect_equal(which_first(x %in% t2),
+               first_which(x %in% t2))
+  x <- c(-400.5, 400)
+  expect_equal(which_first(x %in% t2),
+               first_which(x %in% t2))
+})
+
+test_that("do_which_first_xd_ind", {
+  x <- c(4, 5L, 2L)
+  d0 <- double(0)
+  expect_equal(which_first(x %in% d0),
+               first_which(x %in% d0))
+})
+
+
+
+
+
 
 

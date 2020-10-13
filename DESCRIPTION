@@ -1,6 +1,6 @@
 Package: hutilscpp
 Title: Miscellaneous Functions in C++
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: 
     person(given = "Hugh",
            family = "Parsonage",
@@ -22,8 +22,8 @@ Imports: Rcpp, data.table, glue, hutils, magrittr, utils
 RoxygenNote: 7.1.1
 Suggests: bench, parallel, testthat (>= 2.1.0), TeXCheckR, withr, covr
 NeedsCompilation: yes
-Packaged: 2020-09-18 15:54:07 UTC; hughp
+Packaged: 2020-10-04 06:37:26 UTC; hughp
 Author: Hugh Parsonage [aut, cre]
 Maintainer: Hugh Parsonage <hugh.parsonage@gmail.com>
 Repository: CRAN
-Date/Publication: 2020-09-18 16:30:02 UTC
+Date/Publication: 2020-10-13 23:50:21 UTC
