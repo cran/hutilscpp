@@ -1,8 +1,8 @@
-83cf0765aca4e76f224fa6810edf5e5a *DESCRIPTION
+1dd49e06fa05387fd1b1913482dea138 *DESCRIPTION
 a6fd9657dd473447d1eda75b04c06292 *NAMESPACE
-adf080365cebc5d259d9347f8c1dc49c *NEWS.md
+ae8b56f6bf48d17066e192d4abfec4d8 *NEWS.md
 1c918049a947af138e46e1b807c5807b *R/R_xlen_t.R
-63a4a0e475e464e2644447b70f06bb29 *R/RcppExports.R
+5494c549fa54ce1423321f1c45067acb *R/RcppExports.R
 a59977bd8580e8548e4d5e06d4417597 *R/anyOutside.R
 e2585844adfdc23b935442015d65d480 *R/are_even.R
 a82675562ee47cf67d5cdc11c2120762 *R/as_integer_if_safe.R
@@ -34,7 +34,7 @@ eaf9275ab944061309ad8b7607ed27d2 *R/range_rcpp.R
 0a6c56b9cd75ef655e3f6bb5f636cd74 *R/utils.R
 51896d32ac5afa6350f2a7cd2c1d98c5 *R/which2_yr.R
 029d560897a36f3074e38e9e0d21c065 *R/which3.R
-31692a8d718d46af8716902d5263248d *R/which_first.R
+da6dfa9d3926e29cdf1333aa1b095001 *R/which_first.R
 93fb875dc95199131153cdedda84831c *R/which_firstNA.R
 95e7ae400e25c2edd6d3d7d00cdf478d *R/which_isnt_integerish.R
 c55c88b7fa98421a9e15820c73d8a1a0 *R/which_true_onwards.R
@@ -70,8 +70,8 @@ b95ab2cca899d96c4ac8a304c153ee03 *man/which_true_onwards.Rd
 565cba010b9682450e35eae09eee3064 *src/AnyCharMatch.cpp
 b47879a0cd69b67243a94958a040f89a *src/Implies.cpp
 ce71d5dc521992572f9223cece184362 *src/Makevars
-a31f3aeec4f729e50b18b91a8e2c4dba *src/RcppExports.cpp
-c08666d729bf15404d2a2a15b223cc56 *src/allocate.cpp
+758565e70d68f87703d308c5d74119b6 *src/RcppExports.cpp
+f5af09f6b6666122166100bffb2834d7 *src/allocate.cpp
 de584f7af15c2d9245c5d333d1e5d69e *src/anyOutside.cpp
 1f4757409dbb779c54bdd94661a41283 *src/cpphutils.h
 92e5636ee316ca4dc9eeb54dfd6abe27 *src/do_and3s.cpp
@@ -82,9 +82,9 @@ b630ffca83f16ea2a4626201b449a6e8 *src/do_cumsum_reset.cpp
 a0ab7e3fc8359f7d64657bb57d3f7d3c *src/do_op2M.cpp
 58443c0c50b9434a6798159d7237bd7f *src/do_or3s.cpp
 a768a1840cd9943dbaa80e38031b5855 *src/do_range.cpp
-e84b9ce1c5ef2a0895f68e4239f2a3dc *src/do_which_first.cpp
+333e0bd55a33f3a8969bbc092742a554 *src/do_which_first.cpp
 a9062fc5d1b1a2409f76a4bed4537352 *src/do_which_isnt_integerish.cpp
-9ea767b77d64d709dacd35bded44a2b6 *src/do_which_last.cpp
+28a3e7bad8170c368f6ffa747b896bf7 *src/do_which_last.cpp
 eddcab23aed92a7c6a2f233cc50aa50d *src/do_whichs.cpp
 f3acb5178465dfaf0b84f25d268319be *src/do_xor2.cpp
 ddf1fe07079de89f2fbceedfe1ecdf48 *src/haversineDistance.cpp
@@ -158,9 +158,9 @@ edb81bda5a9f2471e2409da25e75a537 *tests/testthat/test-texParse-internals.R
 f360c890701397d7eabaf3a6cee09c0b *tests/testthat/test-valgrind.R
 08b6c060b3d1319d89a9b945cda9998e *tests/testthat/test-which2_yr.R
 48cae3334fa9719c63b6fd8598a7d7c0 *tests/testthat/test-which3.R
-5dd05513ceb5d6a6c16bd74f50c786d5 *tests/testthat/test-which_first.R
+8bddf4271f0636a7b97c9b34f924195a *tests/testthat/test-which_first.R
 f09a4b6048f13aabcca1d06cd9d3001e *tests/testthat/test-which_isnt_integerish.R
-3c3218bc695b993fbf8dea2b3a560f32 *tests/testthat/test-which_last.R
+141155145a7f7a5619944665440226fd *tests/testthat/test-which_last.R
 bb61f3a82aaf0bb2d5446d4eab74ae0d *tests/testthat/test-which_true_onwards.R
 077c3558e04e50a651577ca831fce31a *tests/testthat/test-whichs.R
 148d99d6b09666b76c65fe6cb609b5cf *tests/testthat/test-xor2.R
