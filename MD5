@@ -1,6 +1,6 @@
-62d41a4294de166726c5a82f3b7939c4 *DESCRIPTION
+15de9edb852ebb2dded550069d580a9f *DESCRIPTION
 14fc4eeeb8f538947f5f95c30370d846 *NAMESPACE
-00fdb85631bd06bdc8adc8c9a2659d1b *NEWS.md
+6e0a73c17b244e5f51169430a02d2564 *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
 1c918049a947af138e46e1b807c5807b *R/R_xlen_t.R
@@ -17,7 +17,7 @@ bd71e52080ad18d29f6004c90011e6de *R/divisible.R
 fd4958e00ba5456c499edb91a97ed6fd *R/ensure_integer.R
 220d6754ce942c4b2adf6e2c7249eb72 *R/extractMandatory.R
 4b892516b33314ad24f9f4c8d3c18dc4 *R/first_which.R
-a4f1a79abce631c27edd89995d17e133 *R/fmatchp.R
+162aa896e1c909051e95409cc28426ad *R/fmatchp.R
 b7d25c39e8aaa88a916bb710f3d86afe *R/haversineDistance.R
 7a7efb8d554745ff1569f0263888efbf *R/helper.R
 83e5b5e9d93b68308a32e76427066913 *R/hutilscpp-package.R
@@ -41,7 +41,7 @@ ab26a6f6e197fc1c362073823271efa8 *R/sum3.R
 b16c73af377e8200fac19c2c03eec16a *R/sum_isna.R
 1cea32761dc6faba955d1ed07cec62a8 *R/units2km.R
 dd0896f16fa142448be438f10309c897 *R/utils-omp.R
-5d02463b6a7e17ea14002b0d5918ab7e *R/utils.R
+191dd3b82aa2fe8ed354d65181b7991f *R/utils.R
 56027a39fb015f22ee4d11c28aacbc15 *R/vname.R
 9aa3af0b7b8d0f190fe320a9314524ac *R/which3.R
 28e18beb57c3d7a2ea8222b468019129 *R/which_NA.R
@@ -100,7 +100,7 @@ fccd9048f2757b688df85c95e7ffa6cc *src/Crange.c
 410e81ee1605c2915f63d97191f65008 *src/Csum_isna.c
 29dc71dd76da48b14a58b1348b490dcb *src/CtexParse.c
 4a63bbb22707339b5ab5809a01d4f0df *src/Cwhich_16.c
-e3df7048df783f6ea58dda3f17869415 *src/Cwhich_even.c
+3c0f12d215b1876c93be624ec28b30ee *src/Cwhich_even.c
 8959ac4f65993ceb5161ff9064216b36 *src/Cwhich_first.c
 1cbad6d40f0b6d1c4b3f2b3ae96fbf93 *src/Cwhich_isna.c
 f4affc82a605d01516df747b9d125b2a *src/Cwhich_last.c
@@ -112,9 +112,8 @@ f1b96bf7afffa7564dea120d8494c15a *src/allocate.c
 bd61868d1070d04c3291959211139492 *src/anyOutside.c
 157716ae9ccef97eedcd55e2e62a5978 *src/asInteger2.c
 f828edf4737d152b6992e3ba75f42118 *src/character.c
-71edeec8f56ca4f526f68ae2a193d14e *src/common.h
 895a9e65820b41b3b5cbfc996e18e6c8 *src/dbl2int.c
-7f530fbafa0c627ab3009cc5285ca061 *src/fastmatch_fastmatch.c
+3fa5e2cfd028d082cc868fb05a192503 *src/fastmatch_fastmatch.c
 2630c6002e34a43abebb2aa00666d246 *src/haversineDistance.c
 d28aa4293105e69edf608e59e87fa96b *src/hutilscpp.h
 b4ccdb9e0ab80af5e376e37c7bf0b0d1 *src/init.c
@@ -133,9 +132,9 @@ ca4106e240d7f03a03de3c3cb3b9c589 *tests/testthat/test-and3.R
 c399e60fb76cd19819cf3b8c5f657159 *tests/testthat/test-and3s-nframes.R
 b97bcbda4c5eb3760e617f022188a4a2 *tests/testthat/test-and3s.R
 18fde307988fa997edee6a3b249a8fd5 *tests/testthat/test-anyOutside.R
-61e556b9abf54a005a613ef23b33ebff *tests/testthat/test-are_even.R
+e48409688db11b591672bf3f651b608f *tests/testthat/test-are_even.R
 5babe29e8f46831e859a1cec9add33c3 *tests/testthat/test-as_integer_if_safe.R
-d83b2ce358661d6638ba7b4fe4927c87 *tests/testthat/test-bench_system_time.R
+7a175684ac619b07b0ac1670ec19b41c *tests/testthat/test-bench_system_time.R
 4551f4fc8f1071e5eaeb04ea9a310da5 *tests/testthat/test-between.R
 8355595fd2e82b7294e691e9c6d37cc8 *tests/testthat/test-check_omp.R
 04a72a2db50cfb616157bdda8e2f031f *tests/testthat/test-count_logical.R
@@ -144,7 +143,7 @@ d83b2ce358661d6638ba7b4fe4927c87 *tests/testthat/test-bench_system_time.R
 26d84acf677b9a7e9b5ea67ef9631f1b *tests/testthat/test-divisible.R
 7ff93caa86fb1392ee6813feca196307 *tests/testthat/test-do_duplicated_sorted.R
 68750ed08ee029bdaf09d8aa018d256a *tests/testthat/test-do_par_in_hash.R
-912545b97c2e66aa22b04a6f3346c434 *tests/testthat/test-fmatch.R
+9732177124807cc1b14b77e0bceeef99 *tests/testthat/test-fmatch.R
 e312067262f5fb4f64d5bc888e50ddca *tests/testthat/test-implies.R
 61e2456585d18637da99713b1dba987a *tests/testthat/test-in.R
 528df3423e442270ff9b0c8b0e8acca6 *tests/testthat/test-is_constant.R
@@ -176,7 +175,7 @@ d51c9ab50b26ee07924dad333114a306 *tests/testthat/test-sum_isna.R
 f360c890701397d7eabaf3a6cee09c0b *tests/testthat/test-valgrind.R
 4d269da1be37290fd0ba4f91e7bd7ed8 *tests/testthat/test-which3.R
 02fdc4b80f00bf82348b52aceb45ee2a *tests/testthat/test-which_NA.R
-849c096f80381c8ec09b59828bbf0454 *tests/testthat/test-which_first.R
+f696712d54f087b9b31fbabbd2887601 *tests/testthat/test-which_first.R
 f09a4b6048f13aabcca1d06cd9d3001e *tests/testthat/test-which_isnt_integerish.R
 f67e22db3a479956aa2782bead624f8e *tests/testthat/test-which_last.R
 bb61f3a82aaf0bb2d5446d4eab74ae0d *tests/testthat/test-which_true_onwards.R

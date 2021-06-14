@@ -27,13 +27,18 @@ fmatchp <- function(x, table, nomatch = NA_integer_, nThread = getOption("hutils
     # avoid constants
     table <- copy(table)
   }
-  .Call("fmatch", x, table, nomatch, fin, whichFirst, nThread, PACKAGE = packageName)
+  .Call("fmatch", x, table, nomatch, fin, whichFirst, nThread, PACKAGE = packageName) %||%
+    match_last_resort(x, table, nomatch, nThread, fin, whichFirst) # nocov
 }
 
 #' @rdname fmatchp
 #' @export
 finp <- function(x, table, nThread = getOption("hutilscpp.nThread", 1L)) {
   nThread <- check_omp(nThread)
+  if (!is.symbol(substitute(table))) {
+    # avoid constants
+    table <- copy(table)
+  }
   fmatchp(x, table, nomatch = 0L, nThread = nThread, fin = TRUE)
 }
 
@@ -41,9 +46,32 @@ finp <- function(x, table, nThread = getOption("hutilscpp.nThread", 1L)) {
 #' @export
 fnotinp <- function(x, table, nThread = getOption("hutilscpp.nThread", 1L)) {
   nThread <- check_omp(nThread)
+  if (!is.symbol(substitute(table))) {
+    # avoid constants
+    table <- copy(table)
+  }
   ans <- fmatchp(x, table, nomatch = 0L, nThread = nThread, fin = TRUE)
   FLIP(ans);
 }
 FLIP <- `!`
 do_par_in_hash_int <- finp
 do_par_in_hash_dbl <- finp
+
+# nocov start
+match_last_resort <- function(x, table, nomatch = NA_integer_, nThread = getOption("hutilscpp.nThread", 1L),
+                              fin = FALSE,
+                              whichFirst = 0L) {
+  if (isTRUE(fin)) {
+    return(x %in% table)
+  }
+  if (whichFirst) {
+    if (whichFirst == 1L) {
+      first_which(x %in% table)
+    }
+    if (whichFirst == -1L) {
+      last_which(x %in% table)
+    }
+  }
+  match(x, table, nomatch = nomatch)
+}
+# nocov end
