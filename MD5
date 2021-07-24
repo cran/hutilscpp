@@ -1,6 +1,6 @@
-15de9edb852ebb2dded550069d580a9f *DESCRIPTION
+cb82a7c33abdaa1502bd011f728a27fb *DESCRIPTION
 14fc4eeeb8f538947f5f95c30370d846 *NAMESPACE
-6e0a73c17b244e5f51169430a02d2564 *NEWS.md
+397d04f3c83bacd2cb450b7cdce1fb97 *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
 1c918049a947af138e46e1b807c5807b *R/R_xlen_t.R
@@ -96,12 +96,12 @@ a85b75c997a3a6fef3d372e4a1083f83 *src/Cdivisible.c
 7bb6f08d4c8a8a9494dad67400c15261 *src/Cor3s.c
 58af0a8bee292594f5c6c8e8244e6a63 *src/Cpar_in.c
 9a3c80211f0daf108604f992b5ebc1e9 *src/Cpminmax.c
-fccd9048f2757b688df85c95e7ffa6cc *src/Crange.c
+c2d504eb57d419f0fcf5ab0d3b8601c8 *src/Crange.c
 410e81ee1605c2915f63d97191f65008 *src/Csum_isna.c
 29dc71dd76da48b14a58b1348b490dcb *src/CtexParse.c
 4a63bbb22707339b5ab5809a01d4f0df *src/Cwhich_16.c
 3c0f12d215b1876c93be624ec28b30ee *src/Cwhich_even.c
-8959ac4f65993ceb5161ff9064216b36 *src/Cwhich_first.c
+f273ab98c70883d1efd29a80f112f539 *src/Cwhich_first.c
 1cbad6d40f0b6d1c4b3f2b3ae96fbf93 *src/Cwhich_isna.c
 f4affc82a605d01516df747b9d125b2a *src/Cwhich_last.c
 99b57b44d40581ebe0716e5acc26dc0a *src/Cwhich_true_onwards.c
