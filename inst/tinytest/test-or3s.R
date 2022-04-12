@@ -1,11 +1,34 @@
+library(hutilscpp)
+library(hutils)
+library(data.table)
+
+x <- rep_len(c(TRUE, FALSE), 1e4)
+expect_false(any(or3s(x %between% c(TRUE, FALSE))))
+expect_false(any(or3s(x %(between)% c(FALSE, TRUE))))
+expect_false(any(or3s(x %]between[% c(FALSE, TRUE))))
+expect_true(all(or3s(x %between% c(FALSE, TRUE))))
+expect_equal(or3s(x %between% c(TRUE, TRUE), type = "which"), which(x))
+expect_equal(or3s(x %between% c(FALSE, FALSE), type = "which"), which(!x))
+y1 <- rep_len(c(TRUE, FALSE, FALSE), 1e4)
+y2 <- rep_len(c(FALSE, TRUE, FALSE, FALSE), 1e4)
+y3 <- rep_len(c(FALSE, FALSE, FALSE, FALSE, TRUE), 1e4)
+expect_equal(or3s(x, y1, y2, y3, x), x | y1 | y2 | y3 | x)
+
+
 # test_that("big doubles", {
-x <- 1:5 + 0.5 + .Machine$integer.max
+x <- rep_len(1:5 + 0.5 + .Machine$integer.max, 1e4)
 expect_equal(or3s(x > 2147483649.5), x > 2147483649.5)
 expect_equal(sum_or3s(x > 2147483649.5), sum(x > 2147483649.5))
 expect_equal(and3s(x > 2147483649.5), x > 2147483649.5)
 expect_equal(sum_and3s(x > 2147483649.5), sum(x > 2147483649.5))
 
+x <- c(1L, 3L, 4L, -3L, 2L, -1L, -2L, 0L, -5L, 5L, -4L, 6L)
+x <- rep_len(x, 1001)
+expect_equal(and3s(x %in% -1:5), x %in% -1:5)
+expect_equal(or3s(x == -1L,,x == 2L), x %in% c(-1L, 2L))
 
+"%(between)%" <- hutilscpp:::`%(between)%`
+"%]between[%" <- hutilscpp:::`%]between[%`
 
 # test_that("A in len>100 ", {
 A <-
@@ -19,7 +42,11 @@ B <- c(-705457251L, 1:1000)
 D <- rep(TRUE, length(B))
 E <- rep(TRUE, length(B))
 
-bor3 <- function(x, y, z, ...) if (missing(..1)) ((x | y) | z) else bor3(x | y, z, ...)
+
+bor3 <- function(x, y, z, ...) {
+  if (missing(z)) return(x | y)
+  if (missing(..1)) ((x | y) | z) else bor3(x | y, z, ...)
+}
 expect_equal(or3s(B %in% A, D, E),
              bor3(B %in% A, D, E))
 expect_equal(or3s(D, B %in% A, D, E),
@@ -32,6 +59,179 @@ expect_equal(or3s(D, E, E, B %in% A, !D, !E),
              bor3(D, E, E, B %in% A, !D, !E))
 z <- function() or3s(D, E, B %in% A)
 expect_equal(z(), bor3(D, E, B %in% A))
+
+AA <- rep_len(A, length(B))
+BB <- rep_len(B, length(AA))
+expect_equal(or3s(AA != AA, AA != BB), AA != BB)
+expect_equal(or3s(AA != AA, AA == BB), AA == BB)
+expect_equal(or3s(AA != AA, AA >= BB), AA >= BB)
+expect_equal(or3s(AA != AA, AA <= BB), AA <= BB)
+expect_equal(or3s(AA != AA, AA > BB), AA > BB)
+expect_equal(or3s(AA != AA, AA < BB), AA < BB)
+expect_equal(or3s(AA != AA, AA %in% BB), AA %in% BB)
+expect_equal(or3s(AA != AA, AA %notin% BB), AA %notin% BB)
+expect_equal(or3s(AA %notin% BB), AA %notin% BB)
+expect_equal(or3s(AA != AA, AA %between% c(1L, 2L)), AA %between% c(1L, 2L))
+expect_equal(or3s(AA != AA, AA %between% c(1L, 2)), AA %between% c(1L, 2L))
+expect_equal(or3s(AA != AA, AA %between% c(1L, 2.2)), AA %between% c(1L, 2L))
+expect_equal(or3s(AA != AA, AA %between% c(NA, 1)), AA %between% c(NA, 1))
+expect_equal(or3s(AA != AA, AA %(between)% c(1L, 1L), type = "raw"), raw(length(AA)))
+expect_equal(or3s(AA != AA, AA %]between[% c(1L, 1L)), AA %]between[% c(1L, 1L))
+expect_equal(or3s(AA != AA, AA %(between)% c(NA, 1)), AA < 1)
+expect_equal(or3s(AA != AA, AA %]between[% c(NA, 1)), AA >= 1)
+expect_equal(or3s(AA != AA, AA %between% c(1L, NaN)), AA %between% c(1L, NaN))
+expect_equal(or3s(AA != AA, AA %(between)% c(1L, NaN)), AA > 1)
+expect_equal(or3s(AA != AA, AA %]between[% c(1L, NaN)), AA <= 1)
+expect_equal(or3s(AA != AA, AA %between% c(.Machine$integer.max, .Machine$integer.max)), AA == .Machine$integer.max)
+expect_equal(or3s(AA != AA, AA %between% c(-.Machine$integer.max, -.Machine$integer.max)), AA == -.Machine$integer.max)
+expect_equal(or3s(AA != AA, AA %between% c(NA, .Machine$integer.max)), rep(TRUE, length(AA)))
+expect_equal(or3s(AA != AA, AA %between% c(2L, 1L)), logical(length(AA)))
+expect_equal(or3s(AA != AA, AA %between% c(2L, 1)), logical(length(AA)))
+BB[2] <- BB[2] + 0.5
+expect_equal(or3s(AA != AA, AA != BB), AA != BB)
+expect_equal(or3s(AA != AA, AA == BB), AA == BB)
+expect_equal(or3s(AA != AA, AA >= BB), AA >= BB)
+expect_equal(or3s(AA != AA, AA <= BB), AA <= BB)
+expect_equal(or3s(AA != AA, AA > BB), AA > BB)
+expect_equal(or3s(AA != AA, AA < BB), AA < BB)
+expect_equal(or3s(AA != AA, AA %in% BB), AA %in% BB)
+AA <- as.double(AA)
+BB <- as.integer(BB)
+expect_equal(or3s(AA != AA, AA != BB), AA != BB)
+expect_equal(or3s(AA != AA, AA == BB), AA == BB)
+expect_equal(or3s(AA != AA, AA >= BB), AA >= BB)
+expect_equal(or3s(AA != AA, AA <= BB), AA <= BB)
+expect_equal(or3s(AA != AA, AA > BB), AA > BB)
+expect_equal(or3s(AA != AA, AA < BB), AA < BB)
+expect_equal(or3s(AA != AA, AA %in% BB), AA %in% BB)
+expect_equal(or3s(AA != AA, AA != BB[1]), AA != BB[1])
+expect_equal(or3s(AA != AA, AA == BB[1]), AA == BB[1])
+expect_equal(or3s(AA != AA, AA >= BB[1]), AA >= BB[1])
+expect_equal(or3s(AA != AA, AA <= BB[1]), AA <= BB[1])
+expect_equal(or3s(AA != AA, AA > BB[1]), AA > BB[1])
+expect_equal(or3s(AA != AA, AA < BB[1]), AA < BB[1])
+expect_equal(or3s(AA != AA, AA %in% BB[1]), AA %in% BB[1])
+expect_equal(or3s(AA != AA, AA %between% BB[1:2]), AA %between% BB[1:2])
+BB[2] <- BB[2] + 0.5
+expect_equal(or3s(AA != AA, AA != BB), AA != BB)
+expect_equal(or3s(AA != AA, AA == BB), AA == BB)
+expect_equal(or3s(AA != AA, AA >= BB), AA >= BB)
+expect_equal(or3s(AA != AA, AA <= BB), AA <= BB)
+expect_equal(or3s(AA != AA, AA > BB), AA > BB)
+expect_equal(or3s(AA != AA, AA < BB), AA < BB)
+expect_equal(or3s(AA != AA, AA %in% BB), AA %in% BB)
+
+AA <- rep_len(c(TRUE, FALSE, TRUE), length(AA))
+BB <- rep_len(c(FALSE, FALSE, TRUE, TRUE, TRUE), length(AA))
+DD <- rep(FALSE, length(AA))
+expect_equal(or3s(DD, AA != BB), AA != BB)
+expect_equal(or3s(DD, AA == BB), AA == BB)
+expect_equal(or3s(DD, AA >= BB), AA >= BB)
+expect_equal(or3s(DD, AA <= BB), AA <= BB)
+expect_equal(or3s(DD, AA > BB), AA > BB)
+expect_equal(or3s(DD, AA < BB), AA < BB)
+
+expect_equal(or3s(DD, AA != TRUE), AA != TRUE)
+expect_equal(or3s(DD, AA == TRUE), AA == TRUE)
+expect_equal(or3s(DD, AA >= TRUE), AA >= TRUE)
+expect_equal(or3s(DD, AA <= TRUE), AA <= TRUE)
+expect_equal(or3s(DD, AA > TRUE), AA > TRUE)
+expect_equal(or3s(DD, AA < TRUE), AA < TRUE)
+
+expect_equal(or3s(DD, AA != FALSE), AA != FALSE)
+expect_equal(or3s(DD, AA == FALSE), AA == FALSE)
+expect_equal(or3s(DD, AA >= FALSE), AA >= FALSE)
+expect_equal(or3s(DD, AA <= FALSE), AA <= FALSE)
+expect_equal(or3s(DD, AA > FALSE), AA > FALSE)
+expect_equal(or3s(DD, AA < FALSE), AA < FALSE)
+
+expect_equal(or3s(DD, AA %in% BB), AA %in% BB)
+expect_equal(or3s(DD, AA %between% c(FALSE, TRUE)), !logical(length(DD)))
+expect_equal(or3s(DD, AA %between% c(TRUE, FALSE)), logical(length(DD)))
+rm(AA)
+A <-
+  c(-945028649L, -705457251L, 807204080L, 1708708214L, -885957403L,
+    1862209884L, 1740762002L, 1546012157L, -1233491410L, 1256036667L,
+    1009745233L, -815497191L, 137228285L, 2012907335L, -314954938L,
+    -1234120580L, 2138414482L, 2089828880L, -1494606089L, 1669541061L,
+    -1635694586L, 913293496L, 657757461L)
+A <- rep_len(A, 1005)
+expect_equal(or3s(A > 2^32), A > 2^32)
+expect_equal(or3s(A < 2^32), A < 2^32)
+expect_equal(or3s(A <= -2^32), A <= -2^32)
+expect_equal(or3s(A <= 2^32), A <= 2^32)
+expect_equal(or3s(A < 2^32), A < 2^32)
+expect_equal(or3s(A < -2^32), A < -2^32)
+expect_equal(or3s(A >= -2^32), A >= -2^32)
+expect_equal(or3s(A > -2^32), A > -2^32)
+expect_equal(or3s(A == 913293496, A != 913293496),
+             bor3(A == 913293496, A != 913293496))
+expect_equal(or3s(A == 913293496.5, A != 913293496),
+             bor3(A == 913293496.5, A != 913293496))
+expect_equal(or3s(A != 913293496.5, A != 913293496),
+             bor3(A != 913293496.5, A != 913293496))
+expect_equal(or3s(A >= Inf, A > 0.5), A > 0.5)
+expect_equal(or3s(A >= Inf, A < 0.5), A < 0.5)
+expect_equal(or3s(A >= Inf, A <= 0.5), A <= 0.5)
+expect_equal(or3s(A >= Inf, A >= 0.5), A >= 0.5)
+
+
+expect_equal(or3s(A == 913293496L), A == 913293496L)
+expect_equal(or3s(A != 913293496L), A != 913293496L)
+expect_equal(or3s(A >= 913293496L), A >= 913293496L)
+expect_equal(or3s(A <= 913293496L), A <= 913293496L)
+expect_equal(or3s(A > 913293496L), A > 913293496L)
+expect_equal(or3s(A < 913293496L), A < 913293496L)
+expect_equal(or3s(A == 913293496), A == 913293496)
+expect_equal(or3s(A != 913293496), A != 913293496)
+expect_equal(or3s(A >= 913293496), A >= 913293496)
+expect_equal(or3s(A <= 913293496), A <= 913293496)
+expect_equal(or3s(A > 913293496), A > 913293496)
+expect_equal(or3s(A < 913293496), A < 913293496)
+
+A <- as.double(A)
+expect_equal(or3s(A > 2^32), A > 2^32)
+expect_equal(or3s(A < 2^32), A < 2^32)
+expect_equal(or3s(A == 913293496, A != 913293496),
+             bor3(A == 913293496, A != 913293496))
+expect_equal(or3s(A == 913293496.5, A != 913293496),
+             bor3(A == 913293496.5, A != 913293496))
+expect_equal(or3s(A != 913293496.5, A != 913293496),
+             bor3(A != 913293496.5, A != 913293496))
+expect_equal(or3s(A >= Inf, A > 0.5), A > 0.5)
+expect_equal(or3s(A >= Inf, A < 0.5), A < 0.5)
+expect_equal(or3s(A >= Inf, A <= 0.5), A <= 0.5)
+expect_equal(or3s(A >= Inf, A >= 0.5), A >= 0.5)
+expect_equal(or3s(A %between% c(1, 5)), A %between% c(1, 5))
+expect_equal(or3s(A %(between)% c(1, 5)), A %(between)% c(1, 5))
+expect_equal(or3s(A %(between)% c(1L, 5L)), A %(between)% c(1L, 5L))
+expect_equal(or3s(A %]between[% c(1L, 5L)), A %]between[% c(1L, 5L))
+
+
+expect_equal(or3s(B %in% A, D, E),
+             bor3(B %in% A, D, E))
+expect_equal(or3s(D, B %in% A, D, E),
+             bor3(D, B %in% A, D, E))
+expect_equal(or3s(D, E, B %in% A, D, E),
+             bor3(D, E, B %in% A, D, E))
+expect_equal(or3s(D, E, E, B %in% A, D, E),
+             bor3(D, E, E, B %in% A, D, E))
+
+# })
+
+# test_that("%(between)% and %]between[%", {
+xi <- 1:10e3 + 0L
+yi <- rep_len(1:1e4, length(xi))
+xd <- as.double(xi)
+yd <- as.double(yi)
+expect_equal(or3s(xi %(between)% c(11L, 110L),
+                  yi %]between[% c(14L, 16L)),
+             `|`(xi %(between)% c(11L, 110L),
+                 yi %]between[% c(14L, 16L)))
+expect_equal(or3s(xd %(between)% c(11.1, 110),
+                  yd %]between[% c(14, 6)),
+             `|`(xd %(between)% c(11.1, 110),
+                 yd %]between[% c(14, 16)))
 
 
 
@@ -30671,9 +30871,9 @@ expect_equal(or3s(vnp >= 9L, d >= 9L, v >= 9L),
 x <- integer(0)
 y <- integer(0)
 
-exprA <- c(1:10)
-exprB <- 1:10 + 5L
-exprC <- 1:10 + 1L
+exprA <- c(1:1001)
+exprB <- 1:1001 + 5L
+exprC <- 1:1001 + 1L
 
 or <- `|`
 or3 <- function(i, j, k) i | j | k

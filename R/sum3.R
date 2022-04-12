@@ -18,47 +18,16 @@
 sum_and3s <- function(exprA, exprB, exprC, ...,
                       nThread = getOption("hutilscpp.nThread", 1L),
                       .env = parent.frame()) {
-  sexprA <- substitute(exprA)
-  sexprB <- substitute(exprB)
-  sexprC <- substitute(exprC)
-  missingA <- missing(exprA)
-  missingB <- missing(exprB)
-  missingC <- missing(exprC)
-
-  d <- decompose_expr(sexprA, sexprB, sexprC,
-                      missingA, missingB, missingC,
-                      .env = .env,
-                      nThread = nThread)
-
-  .Call("Csum3s_par",
-    d[[1]],
-    d[[2]],
-    d[[3]],
-    d[[4]],
-    d[[5]],
-    d[[6]],
-    d[[7]],
-    d[[8]],
-    d[[9]],
-    d[[10]],
-    d[[11]],
-    d[[12]],
-    d[[13]],
-    d[[14]],
-    d[[15]],
-    d[[16]],
-    d[[17]],
-    d[[18]],
-    d[[19]],
-    d[[20]],
-    d[[21]],
-    d[[22]],
-    d[[23]],
-    d[[24]],
-    TRUE, # ampersand
-    check_omp(nThread),
-    PACKAGE = packageName
-  )
+  if (missing(exprB) && missing(exprC)) {
+    return(sum_raw(eval.parent(substitute(and3s(exprA, nThread = nThread, type = "raw"))), nThread = nThread))
+  }
+  if (missing(exprC)) {
+    return(sum_raw(eval.parent(substitute(and3s(exprA, exprB, nThread = nThread, type = "raw"))), nThread = nThread))
+  }
+  if (missing(exprB)) {
+    return(sum_raw(eval.parent(substitute(and3s(exprA, exprC, nThread = nThread, type = "raw"))), nThread = nThread))
+  }
+  sum_raw(eval.parent(substitute(and3s(exprA, exprB, exprC, ..., nThread = nThread, type = "raw"))), nThread = nThread)
 }
 
 #' @rdname sum_and3s
@@ -67,46 +36,6 @@ sum_and3s <- function(exprA, exprB, exprC, ...,
 sum_or3s <- function(exprA, exprB, exprC, ...,
                      .env = parent.frame(),
                      nThread = getOption("hutilscpp.nThread", 1L)) {
-  nThread <- check_omp(nThread)
-  sexprA <- substitute(exprA)
-  sexprB <- substitute(exprB)
-  sexprC <- substitute(exprC)
-  missingA <- missing(exprA)
-  missingB <- missing(exprB)
-  missingC <- missing(exprC)
-
-  d <- decompose_expr(sexprA, sexprB, sexprC,
-                      missingA, missingB, missingC,
-                      .env = .env,
-                      nThread = nThread)
-
-  .Call("Csum3s_par",
-    d[[1]],
-    d[[2]],
-    d[[3]],
-    d[[4]],
-    d[[5]],
-    d[[6]],
-    d[[7]],
-    d[[8]],
-    d[[9]],
-    d[[10]],
-    d[[11]],
-    d[[12]],
-    d[[13]],
-    d[[14]],
-    d[[15]],
-    d[[16]],
-    d[[17]],
-    d[[18]],
-    d[[19]],
-    d[[20]],
-    d[[21]],
-    d[[22]],
-    d[[23]],
-    d[[24]],
-    FALSE,  # ampersand
-    nThread = nThread
-  )
+  sum_raw(eval.parent(substitute(or3s(exprA, exprB, exprC, ..., nThread = nThread, type = "raw"))), nThread = nThread)
 }
 

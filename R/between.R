@@ -28,7 +28,15 @@
   if (is.na(b)) {
     return(x <= a)
   }
+  if (b < a) {
+    return(logical(length(x)))
+  }
   or(x <= a, x >= b)
+}
+
+# m is unsupported
+Between <- function(x, a, b, m = 0L, nThread = getOption("hutilscpp.nThread", 1L)) {
+  .Call("CBetween", x, a, b, m, nThread, PACKAGE = "hutilscpp")
 }
 
 

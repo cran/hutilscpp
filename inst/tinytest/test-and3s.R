@@ -1,19 +1,35 @@
-
-
+library(data.table)
+library(hutilscpp)
 do_and3 <- hutilscpp:::do_and3
+"%(between)%" <- hutilscpp:::`%(between)%`
+"%]between[%" <- hutilscpp:::`%]between[%`
+# })
 # test_that("and3s works", {
-x <- 1:100
+x <- rep_len(c(5L, -5:10), 1e5)
+expect_false(any(and3s(x %between% c(2e10, 3e10))))
+expect_true(all(and3s(x %between% c(-2e10, 3e10))))
+expect_equal(and3s(x %between% c(4.5, 5)), x %between% c(4.5, 5))
+expect_false(any(and3s(x %between% c(-2e10, -1e10))))
+expect_false(any(and3s(x %(between)% c(2e10, 3e10))))
+expect_true(all(and3s(x %]between[% c(2e10, 3e10))))
+
+expect_equal(and3s(x %(between)% c(1.2, 1e10)),
+             x %(between)% c(1.2, 1e10))
+expect_equal(and3s(x %]between[% c(1.2, 1e10)),
+             x %]between[% c(1.2, 1e10))
+
+x <- 1:10000
 expect_true(all(and3s(x != 0L,
                       x >= 1L,
-                      x < 101L)))
+                      x < 10001L)))
 expect_true(all(and3s(x > 0L,
                       x != 0L,
-                      x <= 101L)))
+                      x <= 10001L)))
 expect_true(all(and3s(x > 0L,
-                      x <= 101L,
+                      x <= 10001L,
                       x != 0L)))
 
-y <- integer(5)
+y <- integer(5e3)
 expect_equal(and3s(y > -1L, y >= 0L, y <= 0L),
              y > -1L & y >= 0L & y <= 0L)
 expect_equal(and3s(y != -1L, y >= 0L, y <= 0L),
@@ -53,7 +69,7 @@ expect_equal(and3s(j != 4L, k >= 9L, i %between% c(9L, 11L)),
 expect_equal(and3s(i %in% c(9L, 11L), j != 4L, k >= 9L),
              and3(i %in% c(9L, 11L), j != 4L, k >= 9L))
 
-abc <- 1:5
+abc <- 1:5e3
 expect_equal(and3s(abc %in% c(2L, 1L), abc != 3L, abc != 1L),
              and3(abc %in% c(2L, 1L), abc != 3L, abc != 1L))
 expect_equal(and3s(abc %in% c(2L, 1L, 5L), abc != 3L),
@@ -64,41 +80,15 @@ expect_equal(and3s(abc %in% c(2L, 1L, 5L), abc != 3L, C3),
 # })
 
 # test_that("and3s length 3 %in%", {
-x <- 1:10
+x <- 1:10e3
 expect_equal(and3s(x %in% c(3, 1, 2), x %in% c(2, 3, 1)),
              `&`(x %in% c(3, 1, 2), x %in% c(2, 3, 1)))
 # })
 
-# test_that("is_binary_sexp", {
-is_binary_sexp <- hutilscpp:::is_binary_sexp
-a <- 5
-ff <- function(expr) is_binary_sexp(substitute(expr))
-expect_true(ff(a > 1L))
-expect_false(ff(mean(a) > 1))
-# })
 
-# test_that("do_and3", {
-do_and3s <- hutilscpp:::do_and3
-library(data.table)
-DT1 <- CJ(m = c(TRUE, FALSE),
-          n = c(TRUE, FALSE),
-          o = c(TRUE, FALSE))
-DT1[, the_do_and3 := do_and3(m, n, o)]
-DT1[, the_do_and2 := do_and3(m, n, TRUE)]
-DT1[, the_do_and4 := and3s(m, n, o)]
-DT1[, the_do_and5 := and3s(m, n)]
-DT1[, base_and3 := m & n & o]
-DT1[, base_and2 := m & n]
 
-expect_equal(DT1[["the_do_and3"]],
-             DT1[["base_and3"]])
-expect_equal(DT1[["the_do_and4"]],
-             DT1[["base_and3"]])
-expect_equal(DT1[["the_do_and2"]],
-             DT1[["base_and2"]])
-expect_equal(DT1[["the_do_and5"]],
-             DT1[["base_and2"]])
-# })
+
+
 
 
 # test_that("and3 mixture of symbols and calls", {
