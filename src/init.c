@@ -20,6 +20,7 @@ extern SEXP C_match_min_Haversine(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP
 extern SEXP C_Mode(SEXP, SEXP, SEXP);
 extern SEXP C_op2M(SEXP);
 extern SEXP C_or_raw(SEXP, SEXP, SEXP);
+extern SEXP C_pcg_hash(SEXP, SEXP);
 extern SEXP C_theEmptiestQuarters(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP C_theEuclidDistance(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP C_which_first_lgl1(SEXP, SEXP, SEXP, SEXP);
@@ -82,6 +83,7 @@ extern SEXP CStringEqual(SEXP, SEXP);
 extern SEXP Csum_isna(SEXP, SEXP);
 extern SEXP Csum_raw(SEXP, SEXP);
 extern SEXP Csummary3(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP Ctest_width_dbl(SEXP, SEXP);
 extern SEXP Cuncoalesce0(SEXP);
 extern SEXP Cunique_fmatch(SEXP, SEXP, SEXP);
 extern SEXP CuniqueN_fmatch(SEXP, SEXP);
@@ -122,6 +124,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"C_Mode",                        (DL_FUNC) &C_Mode,                         3},
     {"C_op2M",                        (DL_FUNC) &C_op2M,                         1},
     {"C_or_raw",                      (DL_FUNC) &C_or_raw,                       3},
+    {"C_pcg_hash",                    (DL_FUNC) &C_pcg_hash,                     2},
     {"C_theEmptiestQuarters",         (DL_FUNC) &C_theEmptiestQuarters,          7},
     {"C_theEuclidDistance",           (DL_FUNC) &C_theEuclidDistance,            5},
     {"C_which_first_lgl1",            (DL_FUNC) &C_which_first_lgl1,             4},
@@ -184,6 +187,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"Csum_isna",                     (DL_FUNC) &Csum_isna,                      2},
     {"Csum_raw",                      (DL_FUNC) &Csum_raw,                       2},
     {"Csummary3",                     (DL_FUNC) &Csummary3,                      5},
+    {"Ctest_width_dbl",               (DL_FUNC) &Ctest_width_dbl,                2},
     {"Cuncoalesce0",                  (DL_FUNC) &Cuncoalesce0,                   1},
     {"Cunique_fmatch",                (DL_FUNC) &Cunique_fmatch,                 3},
     {"CuniqueN_fmatch",               (DL_FUNC) &CuniqueN_fmatch,                2},
