@@ -657,8 +657,74 @@ static void vand2s_R(unsigned char * ansp, const int o,
   }
 }
 
+static void vand2_SeqS1(unsigned char * ansp, const SEXP * xp, R_xlen_t N, const char * y, const int ny) {
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (ansp[i] == 0) {
+      continue;
+    }
+    int nxi = length(xp[i]);
+    if (nxi != ny) {
+      ansp[i] = 0;
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    ansp[i] = string_equal(xi, y);
+  }
+}
+
+static void vand2_SneqS1(unsigned char * ansp, const SEXP * xp, R_xlen_t N, const char * y, const int ny) {
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (ansp[i] == 0) {
+      continue;
+    }
+    int nxi = length(xp[i]);
+    if (nxi != ny) {
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    ansp[i] = !string_equal(xi, y);
+  }
+}
+
+static void vand2_SeqS(unsigned char * ansp, const SEXP * xp, R_xlen_t N, const SEXP * yp) {
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (ansp[i] == 0) {
+      continue;
+    }
+    ansp[i] = string_equal(CHAR(xp[i]), CHAR(yp[i]));
+  }
+}
+
+static void vand2_SneqS(unsigned char * ansp, const SEXP * xp, R_xlen_t N, const SEXP * yp) {
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (ansp[i] == 0) {
+      continue;
+    }
+    ansp[i] = !string_equal(CHAR(xp[i]), CHAR(yp[i]));
+  }
+}
+
+static void vand2_SS(unsigned char * ansp, const int o,
+                     const SEXP * x, R_xlen_t N,
+                     const SEXP * y, R_xlen_t M) {
+  if (M == 1) {
+    if (o == OP_EQ) {
+      vand2_SeqS1(ansp, x, N, CHAR(y[0]), length(y[0]));
+    } else {
+      vand2_SneqS1(ansp, x, N, CHAR(y[0]), length(y[0]));
+    }
+  } else {
+    if (o == OP_EQ) {
+      vand2_SeqS(ansp, x, N, y);
+    } else {
+      vand2_SneqS(ansp, x, N, y);
+    }
+  }
+}
+
 static void vand2s(unsigned char * ansp, const int o,
-                   SEXP x, SEXP y, int nThread) {
+                   SEXP x, SEXP y, int nThread,
+                   int * err) {
   R_xlen_t N = xlength(x);
   R_xlen_t M = xlength(y);
 
@@ -681,6 +747,8 @@ static void vand2s(unsigned char * ansp, const int o,
     case REALSXP:
       vand2s_ID(ansp, o, INTEGER(x), N, REAL(y), M, nThread);
       break;
+    default:
+      *err = AND3_UNSUPPORTED_TYPEY;
     }
     break;
   case REALSXP:
@@ -691,10 +759,23 @@ static void vand2s(unsigned char * ansp, const int o,
     case REALSXP:
       vand2s_DD(ansp, o, REAL(x), N, REAL(y), M, nThread);
       break;
+    default:
+      *err = AND3_UNSUPPORTED_TYPEY;
     }
     break;
   case RAWSXP:
     vand2s_R(ansp, o, RAW(x), N, nThread);
+    break;
+  case STRSXP:
+    if (TYPEOF(y) == STRSXP && (o == OP_EQ || o == OP_NE)) {
+    // only support == and !=
+      vand2_SS(ansp, o, STRING_PTR(x), N, STRING_PTR(y), M);
+    } else {
+      *err = AND3_UNSUPPORTED_TYPEY;
+    }
+    break;
+  default:
+    *err = AND3_UNSUPPORTED_TYPEX;
   }
 }
 
@@ -716,6 +797,8 @@ SEXP Cands(SEXP oo1, SEXP xx1, SEXP yy1,
   const int o2 = sex2op(oo2);
   SEXP ans = PROTECT(allocVector(RAWSXP, N));
   unsigned char * ansp = RAW(ans);
+  int err[1] = {0};
+
   if (TYPEOF(yy1) == NILSXP) {
     switch(TYPEOF(xx1)) {
     case LGLSXP: {
@@ -754,12 +837,16 @@ SEXP Cands(SEXP oo1, SEXP xx1, SEXP yy1,
     FORLOOP({
       ansp[i] = 1;
     })
-    vand2s(ansp, o1, xx1, yy1, nThread);
+    vand2s(ansp, o1, xx1, yy1, nThread, err);
   }
   if (use2) {
-    vand2s(ansp, o2, xx2, yy2, nThread);
+    vand2s(ansp, o2, xx2, yy2, nThread, err);
   }
   UNPROTECT(1);
+  if (err[0]) {
+    REprintf("Unsupported type\n");
+    return R_NilValue;
+  }
   return ans;
 }
 

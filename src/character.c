@@ -7,6 +7,10 @@ const char OPEN_SQBRK = 91;
 const char STOP_SQBRK = 93;
 
 bool string_equal(const char * x, const char * y) {
+  // return x == y; // this may be sufficient
+  if (x == y) {
+    return true;
+  }
   if (x[0] == '\0') {
     return y[0] == '\0';
   }
@@ -53,9 +57,11 @@ SEXP CStringEqual(SEXP x, SEXP y) {
     return ScalarLogical(0);
   }
   R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  const SEXP * yp = STRING_PTR(y);
   for (R_xlen_t i = 0; i < N; ++i) {
-    const char * xi = CHAR(STRING_ELT(x, i));
-    const char * yi = CHAR(STRING_ELT(y, i));
+    const char * xi = CHAR(xp[i]);
+    const char * yi = CHAR(yp[i]);
     if (!string_equal(xi, yi)) {
       return ScalarLogical(0);
     }
