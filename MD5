@@ -1,6 +1,6 @@
-eb5ee81ccdbad4636797cee4f7a08e10 *DESCRIPTION
+97f5755f1a7ab807a55f85968efbbee0 *DESCRIPTION
 d301d392eec076b41064a954bc8753db *NAMESPACE
-9ce67f8de0b6860a86a0383aa9bd3172 *NEWS.md
+75237ac933cb84c09ed0e2bdc942cb03 *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 cb494f5a99c1f068733401164da3b410 *R/Comma.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
@@ -53,7 +53,7 @@ dfd7b590fbfed1dd8095c4cbd45426e6 *R/sum_raw.R
 d41d8cd98f00b204e9800998ecf8427e *R/test_that.R
 9b308cbf51c0380f1f4ad12fc45d150b *R/unique_fmatch.R
 1cea32761dc6faba955d1ed07cec62a8 *R/units2km.R
-8fda2d7e0a9a787801b59c0cbb84d85e *R/utils-omp.R
+096dd83189e30f9311ac9b048f71d2c7 *R/utils-omp.R
 17afc1c5ac4e7220beff6ed51a07596e *R/utils.R
 56027a39fb015f22ee4d11c28aacbc15 *R/vname.R
 5ab10b0d09f468013a1f222651195752 *R/which3.R
@@ -145,7 +145,7 @@ e8ee3599658e4024b224f4d4f65c413e *inst/tinytest/test_unique_fmatch.R
 638b6de6ebabbb13f1e4fc29b0f0c4a4 *inst/tinytest/test_which_raw.R
 758b8ccab47b1c2d3f270db230361166 *man/Comma.Rd
 5dcb9d29cd94060b95cdacef3359d02c *man/Implies.Rd
-b30c4889716dff893a0ed60346b25306 *man/ModeC.Rd
+8c8992558b8e7d0a19d7551887e58013 *man/ModeC.Rd
 8d0668610d99b1cb3c349620cb52656a *man/abs_diff.Rd
 c8cf8806fcc1969bf2c35ba840deb396 *man/allNA.Rd
 f589897fb3756e45dbfccd23f049b63e *man/anyOutside.Rd
@@ -189,7 +189,7 @@ d46c1c272201c0e662f3489a5d95ee2c *src/CImplies.c
 8b6cb1a5eaf1b7864895f14c317cff9a *src/C_abs_diff.c
 83d98e10d1fbd0f2b96237a11c1e9edb *src/C_character2integer.c
 fa9fded179d24618956da51326b75a82 *src/C_empty.c
-bd10387ed0f38e1a7f67f772ae9b6895 *src/C_lehmer.c
+3731067014b33a637933cce18d718562 *src/C_lehmer.c
 f4ee5db8f3c7351da302b63c510a8b02 *src/C_op2M.c
 e58f96c5f08c0fb4471621ab5e67baa5 *src/Cand3s.c
 be8066eff0be7d20113bf0e92572c15b *src/Ccoalesce0.c
@@ -227,16 +227,16 @@ deabb89d18049873e0a0837b03571f9e *src/dbl2int.c
 af7376207e261c5586b9b8fb30c5738e *src/fastmatch_fastmatch.c
 2534e19029d331d62bdaa431d5e0ebd3 *src/fmatchp_lgl.c
 2630c6002e34a43abebb2aa00666d246 *src/haversineDistance.c
-f1e7ec6f8365eba41a4efacf3bd4133f *src/hutilscpp.h
-6e67ececa8aa16865fa41f3e9e672148 *src/init.c
+edc017e734b8b5841127bb6d118f4332 *src/hutilscpp.h
+39820347f73626153f381c8375472fd7 *src/init.c
 fb66eb6b632306cca4c1f9920154264b *src/is_seq.c
 e986dad2ac29afd74b1940b5d497321b *src/is_true.c
 0efdf12a6dd78cc69a3fdda126965f39 *src/isntRaw.c
 8e64295d2ed3f993b1e4a21cc148bba6 *src/logical3.c
 ba236dce1ac988fae4fb0f56f5010552 *src/minmax.c
-61568931b02369dad07e1310d7199a54 *src/omp_diagnose.c
+7ce7a8f7a1c9f635a0c9b47b4d208060 *src/omp_diagnose.c
 5e25a7c9f52edc4f74c01e1036b8a99c *src/op_xlen2.c
-9b14e0df4e7dc9d7dbc52e0a3b9fff4b *src/pcg_hash.c
+2d4bdd82cc243cc7ea4cf6993ea91a96 *src/pcg_hash.c
 652f9549e240053757b8398557826b24 *src/single_ox_x1_x2.c
 648cc274d16ef212ce942c5433cf7fd9 *src/summary3.c
 b59fb405e9bee7923287aff8075b3eb9 *tests/tinytest.R
