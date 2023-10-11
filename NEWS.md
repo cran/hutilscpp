@@ -1,3 +1,10 @@
+## hutilscpp 0.10.0
+
+* New features
+  - `abs_diff` contains a which.max option = 3.
+
+
+
 ## hutilscpp 0.9.3
 
 * Internal
