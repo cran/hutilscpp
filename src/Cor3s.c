@@ -645,7 +645,7 @@ SEXP Cors(SEXP oo1, SEXP xx1, SEXP yy1,
   if (use2 && xlength(xx2) != N) {
     // # nocov start
     error("`(Cors): xlength(xx1) = %lld`, yet `xlength(xx2) = %lld`.",
-          xlength(xx1), xlength(xx2));
+          (long long)xlength(xx1), (long long)xlength(xx2));
     // # nocov end
   }
 
@@ -678,7 +678,7 @@ SEXP Cors(SEXP oo1, SEXP xx1, SEXP yy1,
   }
   UNPROTECT(1);
   if (err[0]) {
-    REprintf("Unsupported type");
+    REprintf("Unsupported type\n");
     return R_NilValue;
   }
   return ans;

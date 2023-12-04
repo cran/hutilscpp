@@ -1,3 +1,25 @@
+## hutilscpp 0.10.4
+
+### Internal
+
+- `is_constant` does not inherit data.table multithreading
+
+## hutilscpp 0.10.3
+
+### Bug fixes:
+
+* `and3s(rr == 0L)` works for raw `rr`
+
+### Internal:
+
+* Fix for -Wformat checks
+
+
+
+## hutilscpp 0.10.2
+
+* Fix for new is.atomic behaviour
+
 ## hutilscpp 0.10.0
 
 * New features
