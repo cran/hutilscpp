@@ -1,6 +1,6 @@
-c8a6a26f9812581e74b31728b18422f3 *DESCRIPTION
+8927aa7050efc4bd3ca24a2ab9041397 *DESCRIPTION
 d301d392eec076b41064a954bc8753db *NAMESPACE
-455bec5d861db37ac5e4661971f29cee *NEWS.md
+7cccde3e270522353031dddff0a04550 *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 cb494f5a99c1f068733401164da3b410 *R/Comma.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
@@ -11,7 +11,7 @@ e72b22013d6be80e1eb4514f90fd13f5 *R/abs_diff.R
 56811cde739728ddfdef53c725f973d8 *R/ands.R
 32c5c262e113a976f44cb2ed9b4b1374 *R/anyOutside.R
 e877286e28b45e41b221976bb4f08b40 *R/are_even.R
-178a6ac55b1f81fe143e010e34ac861e *R/as_integer_if_safe.R
+f8db2dae19d270653613542729cd881d *R/as_integer_if_safe.R
 e33715de57efc4832f6c956af1ee0522 *R/bench_system_time.R
 b530f125527fa22435bcadfd6d8ae5ed *R/between.R
 695b3db14f86b0bf8111eb7d81f05be3 *R/character2integer.R
@@ -42,6 +42,7 @@ fa91477ac38751904f27424e87e10cce *R/minmax.R
 d59548d6f24d7706e5dd8640c54e46f0 *R/pcg_hash.R
 bed0df77460d2ffab3e2ed282f89911d *R/pmaxC.R
 76220feedcce89bee6927a18f9b12932 *R/poleInaccessibility2.R
+2322810b68a60ac3ab004efea03b55fa *R/prospect_hash.R
 cab906b19dfedb359c599cb5278619cb *R/range_rcpp.R
 70047b154cba5ca76025c2c0bca84c1e *R/raw2lgl.R
 11eb83fba32778d9b894e9fb4cb488a2 *R/rev.R
@@ -116,7 +117,7 @@ eeaeaf160870c78f91306419971f12a4 *inst/tinytest/test-tex.R
 a83e3ba9c47b2eb1f7d0aa04addcd562 *inst/tinytest/test-texParse-internals.R
 05d9f4bae7a4714626c65986bd41298a *inst/tinytest/test-units2km.R
 165d878790996f6555a00f1f1396179b *inst/tinytest/test-utils.R
-196a8329c1aedbf871af647db9911df1 *inst/tinytest/test-valgrind.R
+5a100e63b7b8abc0a5328575ca346496 *inst/tinytest/test-valgrind.R
 5bde5d67f870969016042653c6002728 *inst/tinytest/test-which3.R
 6fe622fc602d9f8143dd79e8ce83742f *inst/tinytest/test-which_NA.R
 e7a413f79a1581b8e80c6d7054ad0e64 *inst/tinytest/test-which_first.R
@@ -187,11 +188,11 @@ d46c1c272201c0e662f3489a5d95ee2c *src/CImplies.c
 36733d7eed7f5a69f6a8c5b694424f1e *src/C_FLIP.c
 8b503999b728b0dd233aa0d51788013c *src/C_Mode.c
 c5801b092e1fc7707cbf8595e9f88733 *src/C_abs_diff.c
-573f71a885636b32b16af08f184c28e7 *src/C_character2integer.c
-fa9fded179d24618956da51326b75a82 *src/C_empty.c
+4199c59690f629fc1ccdf1cd1acfc9e4 *src/C_character2integer.c
+03d2e2e33eed8912a7b7d4b4978831ad *src/C_empty.c
 3731067014b33a637933cce18d718562 *src/C_lehmer.c
 f4ee5db8f3c7351da302b63c510a8b02 *src/C_op2M.c
-43bc9134d40502857f444370596ed939 *src/Cand3s.c
+0caff3372078da48b286ea42d1f000fb *src/Cand3s.c
 be8066eff0be7d20113bf0e92572c15b *src/Ccoalesce0.c
 7767eecc013c43f43deebd4a77da1623 *src/Ccount_logical.c
 3bcf5a7c03dc3f03f73adf4b73e5e76b *src/Ccumsum_reset.c
@@ -200,7 +201,7 @@ a85b75c997a3a6fef3d372e4a1083f83 *src/Cdivisible.c
 61c68e28ccd13372bd94d8e5585c9c97 *src/Cis_constant.c
 496087ee8308bdd352dc28d40fd9469c *src/Cis_sorted.c
 a892dda6a8d27bf03d337a8dffb72ddf *src/Clgl2raw.c
-eec1c3b0fe26cacd3bdb71db383da7ed *src/Cor3s.c
+d01bcca4728ca6b8d74669df16e25397 *src/Cor3s.c
 719a287959041cf34193f013dc4beb8b *src/Cpar_in.c
 d8ea7d361900a57a74f71923438c1542 *src/Cpminmax.c
 4ca15f68ddbd8308bd25853199998284 *src/Crange.c
@@ -221,14 +222,15 @@ d40b118333be5678e2c45b03acc49b41 *src/Makevars
 6b4dc2b96d4e7c806f12282160cd209e *src/anyOutside.c
 157716ae9ccef97eedcd55e2e62a5978 *src/asInteger2.c
 cda032ec44b6798a0de23acc26f2e083 *src/between.c
-622b57015bae3a3e530dca318ea68008 *src/character.c
-deabb89d18049873e0a0837b03571f9e *src/dbl2int.c
+f60838c360d398f5fd58d49592fb5202 *src/character.c
+8e8bc87f29e8139bd4361da6ddd7181d *src/dbl2int.c
+46cdff38d23f9f2d0ada877654eb3a3d *src/error-warnings.c
 81251b8b56c158c4a9c2b953705330f8 *src/extent.c
 af7376207e261c5586b9b8fb30c5738e *src/fastmatch_fastmatch.c
 2534e19029d331d62bdaa431d5e0ebd3 *src/fmatchp_lgl.c
 2630c6002e34a43abebb2aa00666d246 *src/haversineDistance.c
-bc0040185573a0b8c9224c10dd620841 *src/hutilscpp.h
-8d52c0f1eaae734f1c615bdd7bb828b4 *src/init.c
+b08506d1b5170d405bb03aafd7c48e39 *src/hutilscpp.h
+356d3dd69078c090721bec43beec0a70 *src/init.c
 fb66eb6b632306cca4c1f9920154264b *src/is_seq.c
 e986dad2ac29afd74b1940b5d497321b *src/is_true.c
 0efdf12a6dd78cc69a3fdda126965f39 *src/isntRaw.c
@@ -236,7 +238,7 @@ f9353379f760e640e9fb138c6235c81f *src/logical3.c
 29320b911c9263940d30c301fe383f2b *src/minmax.c
 7ce7a8f7a1c9f635a0c9b47b4d208060 *src/omp_diagnose.c
 5e25a7c9f52edc4f74c01e1036b8a99c *src/op_xlen2.c
-2d4bdd82cc243cc7ea4cf6993ea91a96 *src/pcg_hash.c
+b06fcf2d1ccbfd9a84706cefddcf16f5 *src/pcg_hash.c
 652f9549e240053757b8398557826b24 *src/single_ox_x1_x2.c
 648cc274d16ef212ce942c5433cf7fd9 *src/summary3.c
 b59fb405e9bee7923287aff8075b3eb9 *tests/tinytest.R
