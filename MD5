@@ -1,6 +1,6 @@
-8927aa7050efc4bd3ca24a2ab9041397 *DESCRIPTION
+2a4d593aedd34e351e211d89dc3e6d3c *DESCRIPTION
 d301d392eec076b41064a954bc8753db *NAMESPACE
-7cccde3e270522353031dddff0a04550 *NEWS.md
+ba5604645f26f3f0089dd39624ca4d9b *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 cb494f5a99c1f068733401164da3b410 *R/Comma.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
@@ -231,7 +231,7 @@ af7376207e261c5586b9b8fb30c5738e *src/fastmatch_fastmatch.c
 2630c6002e34a43abebb2aa00666d246 *src/haversineDistance.c
 b08506d1b5170d405bb03aafd7c48e39 *src/hutilscpp.h
 356d3dd69078c090721bec43beec0a70 *src/init.c
-fb66eb6b632306cca4c1f9920154264b *src/is_seq.c
+220b10138fdfcd944d57f90a82b1f608 *src/is_seq.c
 e986dad2ac29afd74b1940b5d497321b *src/is_true.c
 0efdf12a6dd78cc69a3fdda126965f39 *src/isntRaw.c
 f9353379f760e640e9fb138c6235c81f *src/logical3.c
