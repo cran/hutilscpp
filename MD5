@@ -1,6 +1,6 @@
-2a4d593aedd34e351e211d89dc3e6d3c *DESCRIPTION
+0fb8cbfe1eb28ba604cba10bf3efb0df *DESCRIPTION
 d301d392eec076b41064a954bc8753db *NAMESPACE
-ba5604645f26f3f0089dd39624ca4d9b *NEWS.md
+d780b0579a2c7a5f47ed2b97fa1f9b26 *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 cb494f5a99c1f068733401164da3b410 *R/Comma.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
@@ -204,7 +204,7 @@ a892dda6a8d27bf03d337a8dffb72ddf *src/Clgl2raw.c
 d01bcca4728ca6b8d74669df16e25397 *src/Cor3s.c
 719a287959041cf34193f013dc4beb8b *src/Cpar_in.c
 d8ea7d361900a57a74f71923438c1542 *src/Cpminmax.c
-4ca15f68ddbd8308bd25853199998284 *src/Crange.c
+1fc33658f5ad529ad5e3c3640993cf16 *src/Crange.c
 47adc3ef48d6dc8f26b27a4c0daeb948 *src/Craw2lgl.c
 410e81ee1605c2915f63d97191f65008 *src/Csum_isna.c
 34905f0738d78575fd59b28bd1d29ce2 *src/Csum_raw.c
@@ -222,7 +222,7 @@ d40b118333be5678e2c45b03acc49b41 *src/Makevars
 6b4dc2b96d4e7c806f12282160cd209e *src/anyOutside.c
 157716ae9ccef97eedcd55e2e62a5978 *src/asInteger2.c
 cda032ec44b6798a0de23acc26f2e083 *src/between.c
-f60838c360d398f5fd58d49592fb5202 *src/character.c
+ab32e7ecc990531c46f700fb6f286dfa *src/character.c
 8e8bc87f29e8139bd4361da6ddd7181d *src/dbl2int.c
 46cdff38d23f9f2d0ada877654eb3a3d *src/error-warnings.c
 81251b8b56c158c4a9c2b953705330f8 *src/extent.c
