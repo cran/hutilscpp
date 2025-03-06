@@ -36,17 +36,17 @@ typedef struct hash {
   hash_index_t m, els; /* hash size, added elements (unused!) */
 int k;               /* used bits */
 SEXPTYPE type;       /* payload type */
-void *src;           /* the data array of the hashed object */
+const void *src;           /* the data array of the hashed object */
 SEXP prot;           /* object to protect along whith this hash */
 SEXP parent;         /* hashed object */
 struct hash *next;   /* next hash table - typically for another type */
-hash_index_t ix[1];  /* actual table of indices */
+hash_index_t ix[];  /* actual table of indices */
 } hash_t;
 
 /* create a new hash table with the given source and length.
  we store only the index - values are picked from the source
  so you must make sure the source is still alive when used */
-static hash_t *new_hash(void *src, hash_index_t len) {
+static hash_t *new_hash(const void *src, hash_index_t len) {
   hash_t *h;
   int k = 1;
   hash_index_t m = 2, desired = len * 2; /* we want a maximal load of 50% */
@@ -68,7 +68,7 @@ static void free_hash(hash_t *h) {
 
 /* R finalized for the hash table object */
 static void hash_fin(SEXP ho) {
-  hash_t *h = (hash_t*) EXTPTR_PTR(ho);
+  hash_t *h = (hash_t*) R_ExternalPtrAddr(ho);
   if (h) free_hash(h);
 }
 
@@ -102,16 +102,21 @@ union dint_u {
   unsigned int u[2];
 };
 
+static double norm_double(double val) {
+  if (val == 0.0) return 0.0;
+  if (R_IsNA(val)) return NA_REAL;
+  if (R_IsNaN(val)) return R_NaN;
+  return val;
+}
+
 /* add the double value at index i (0-based!) to the hash */
 static hash_value_t add_hash_real(hash_t *h, hash_index_t i) {
   double *src = (double*) h->src;
   union dint_u val;
   hash_value_t addr;
-  /* double is a bit tricky - we nave to nomalize 0.0, NA and NaN */
-  val.d = (src[i] == 0.0) ? 0.0 : src[i];
-  if (R_IsNA(val.d)) val.d = NA_REAL;
-  else if (R_IsNaN(val.d)) val.d = R_NaN;
-  addr = HASH(val.u[0]+ val.u[1]);
+
+  val.d = norm_double(src[i]);
+  addr = HASH(val.u[0] + val.u[1]);
 #ifdef PROFILE_HASH
   hash_value_t oa = addr;
 #endif
@@ -175,13 +180,11 @@ static hash_index_t get_hash_real(hash_t *h, double val, int nmv) {
   hash_value_t addr;
   union dint_u val_u;
   /* double is a bit tricky - we nave to normalize 0.0, NA and NaN */
-  if (val == 0.0) val = 0.0;
-  if (R_IsNA(val)) val = NA_REAL;
-  else if (R_IsNaN(val)) val = R_NaN;
-  val_u.d = val;
+  val_u.d = norm_double(val);
   addr = HASH(val_u.u[0] + val_u.u[1]);
   while (h->ix[addr]) {
-    if (!memcmp(&src[h->ix[addr] - 1], &val, sizeof(val)))
+    double nv = norm_double(src[h->ix[addr] - 1]);
+    if (!memcmp(&nv, &val_u.d, sizeof(nv)))
       return h->ix[addr];
     addr++;
     if (addr == h->m) addr = 0;
@@ -280,7 +283,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
   }
 
   /* implicitly convert factors/POSIXlt to character */
-  if (OBJECT(x)) {
+  if (isObject(x)) {
     if (inherits(x, "factor")) {
       x = PROTECT(asCharacterFactor(x));
       np++;
@@ -291,8 +294,8 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
   }
 
   /* for y we may need to do that later */
-  y_factor = OBJECT(y) && inherits(y, "factor");
-  y_to_char = y_factor || (OBJECT(y) && inherits(y, "POSIXlt"));
+  y_factor = isObject(y) && inherits(y, "factor");
+  y_to_char = y_factor || (isObject(y) && inherits(y, "POSIXlt"));
 
   /* coerce to common type - in the order of SEXP types */
   if(TYPEOF(x) >= STRSXP || TYPEOF(y) >= STRSXP)
@@ -319,7 +322,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
   if (!hs) hs = Rf_install(".match.hash");
   a = Rf_getAttrib(y, hs);
   if (a != R_NilValue) { /* if there is a cache, try to find the matching type */
-  h = (hash_t*) EXTPTR_PTR(a);
+  h = (hash_t*) R_ExternalPtrAddr(a);
     /* could the object be out of sync ? If so, better remove the hash and ignore it */
     if (!h || h->parent != y) {
 #if HASH_VERBOSE
@@ -332,19 +335,19 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
   }
   /* if there is no cache or not of the needed coerced type, create one */
   if (a == R_NilValue || !h) {
-    h = new_hash(DATAPTR(y), XLENGTH(y));
+    h = new_hash(DATAPTR_RO(y), XLENGTH(y));
     h->type = type;
     h->parent = y;
 #if HASH_VERBOSE
     Rprintf(" - creating new hash for type %d\n", type);
 #endif
-    if (a == R_NilValue || !EXTPTR_PTR(a)) { /* if there is no cache attribute, create one */
+    if (a == R_NilValue || !R_ExternalPtrAddr(a)) { /* if there is no cache attribute, create one */
   a = R_MakeExternalPtr(h, R_NilValue, R_NilValue);
       Rf_setAttrib(y, hs, a);
       Rf_setAttrib(a, R_ClassSymbol, Rf_mkString("match.hash"));
       R_RegisterCFinalizer(a, hash_fin);
     } else { /* otherwise append the new cache */
-  hash_t *lh = (hash_t*) EXTPTR_PTR(a);
+  hash_t *lh = (hash_t*) R_ExternalPtrAddr(a);
       while (lh->next) lh = lh->next;
       lh->next = h;
 #if HASH_VERBOSE
@@ -360,7 +363,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
         Rprintf("   (need to coerce table to %d)\n", type);
 #endif
       y = y_to_char ? (y_factor ? asCharacterFactor(y) : asCharacter(y, R_GlobalEnv)) : coerceVector(y, type);
-      h->src = DATAPTR(y); /* this is ugly, but we need to adjust the source since we changed it */
+      h->src = DATAPTR_RO(y); /* this is ugly, but we need to adjust the source since we changed it */
   h->prot = y; /* since the coerced object is temporary, we let the hash table handle its life span */
   R_PreserveObject(y);
     }
@@ -405,7 +408,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
         v[i] = get_hash_real(h, k[i], nmv) != 0;
       }
     } else {
-      SEXP *k = (SEXP*) DATAPTR(x);
+      SEXP *k = (SEXP*) DATAPTR_RO(x);
       for (i = 0; i < n; i++)
         v[i] = get_hash_ptr(h, k[i], nmv) != 0;
     }
@@ -435,7 +438,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
           }
         }
       } else {
-        SEXP *k = (SEXP*) DATAPTR(x);
+        SEXP *k = (SEXP*) DATAPTR_RO(x);
         for (R_xlen_t i = 0; i < n; i++) {
           if (get_hash_ptr(h, k[i], nmv) != 0) {
             wo = i + 1;
@@ -463,7 +466,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
           }
         }
       } else {
-        SEXP *k = (SEXP*) DATAPTR(x);
+        SEXP *k = (SEXP*) DATAPTR_RO(x);
         for (R_xlen_t i = n - 1; i >= 0; i--) {
           if (get_hash_ptr(h, k[i], nmv) != 0) {
             wo = i + 1;
@@ -506,7 +509,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
           v[i] = NA_int2real(get_hash_real(h, k[i], NA_INTEGER));
         }
       } else {
-        SEXP *k = (SEXP*) DATAPTR(x);
+        SEXP *k = (SEXP*) DATAPTR_RO(x);
         for (i = 0; i < n; i++)
           v[i] = NA_int2real(get_hash_ptr(h, k[i], NA_INTEGER));
       }
@@ -528,7 +531,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
           v[i] = (double) get_hash_real(h, k[i], nmv);
         }
       } else {
-        SEXP *k = (SEXP*) DATAPTR(x);
+        SEXP *k = (SEXP*) DATAPTR_RO(x);
         for (i = 0; i < n; i++)
           v[i] = (double) get_hash_ptr(h, k[i], nmv);
       }
@@ -559,7 +562,7 @@ SEXP fmatch(SEXP x, SEXP y, SEXP nonmatch, SEXP Fin, SEXP WhichFirst, SEXP nthre
       v[i] = get_hash_real(h, k[i], nmv);
     }
   } else {
-    SEXP *k = (SEXP*) DATAPTR(x);
+    SEXP *k = (SEXP*) DATAPTR_RO(x);
     for (R_xlen_t i = 0; i < N; i++)
       v[i] = get_hash_ptr(h, k[i], nmv);
   }

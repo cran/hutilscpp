@@ -1,6 +1,6 @@
-0fb8cbfe1eb28ba604cba10bf3efb0df *DESCRIPTION
+158804aa42ed6cf3314770f6e6e0c31d *DESCRIPTION
 d301d392eec076b41064a954bc8753db *NAMESPACE
-d780b0579a2c7a5f47ed2b97fa1f9b26 *NEWS.md
+210d5a5774599f8a8373751c34dd0810 *NEWS.md
 a1f1cd040c22ea2081499fbeaff3b625 *R/AnyCharMatch.R
 cb494f5a99c1f068733401164da3b410 *R/Comma.R
 f9c261a8d4bb8cd88ed83edfe0ac5348 *R/Implies.R
@@ -146,7 +146,7 @@ e8ee3599658e4024b224f4d4f65c413e *inst/tinytest/test_unique_fmatch.R
 638b6de6ebabbb13f1e4fc29b0f0c4a4 *inst/tinytest/test_which_raw.R
 758b8ccab47b1c2d3f270db230361166 *man/Comma.Rd
 5dcb9d29cd94060b95cdacef3359d02c *man/Implies.Rd
-b30c4889716dff893a0ed60346b25306 *man/ModeC.Rd
+8c8992558b8e7d0a19d7551887e58013 *man/ModeC.Rd
 b88cac8df059485459eb76fdd41c9ca2 *man/abs_diff.Rd
 c8cf8806fcc1969bf2c35ba840deb396 *man/allNA.Rd
 f589897fb3756e45dbfccd23f049b63e *man/anyOutside.Rd
@@ -226,7 +226,7 @@ ab32e7ecc990531c46f700fb6f286dfa *src/character.c
 8e8bc87f29e8139bd4361da6ddd7181d *src/dbl2int.c
 46cdff38d23f9f2d0ada877654eb3a3d *src/error-warnings.c
 81251b8b56c158c4a9c2b953705330f8 *src/extent.c
-af7376207e261c5586b9b8fb30c5738e *src/fastmatch_fastmatch.c
+2d0f979cb13eb0d47e7fd865261081da *src/fastmatch_fastmatch.c
 2534e19029d331d62bdaa431d5e0ebd3 *src/fmatchp_lgl.c
 2630c6002e34a43abebb2aa00666d246 *src/haversineDistance.c
 b08506d1b5170d405bb03aafd7c48e39 *src/hutilscpp.h

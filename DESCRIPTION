@@ -1,6 +1,6 @@
 Package: hutilscpp
 Title: Miscellaneous Functions in C++
-Version: 0.10.7
+Version: 0.10.8
 Authors@R: 
     c(person(given = "Hugh",
            family = "Parsonage",
@@ -22,12 +22,12 @@ License: GPL-2
 Encoding: UTF-8
 Depends: R (>= 3.3.0)
 Imports: data.table, hutils, magrittr, utils
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.2
 Suggests: bench, parallel, TeXCheckR, withr, tinytest, covr
 NeedsCompilation: yes
-Packaged: 2025-01-08 11:41:05 UTC; hughp
+Packaged: 2025-03-06 13:36:42 UTC; hughp
 Author: Hugh Parsonage [aut, cre],
   Simon Urbanek [ctb] (fastmatch components)
 Maintainer: Hugh Parsonage <hugh.parsonage@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-01-08 12:20:10 UTC
+Date/Publication: 2025-03-06 14:30:02 UTC
